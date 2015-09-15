@@ -8,6 +8,7 @@ baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://codyschaaf.com" # the base hostname & protocol for your site
 twitter_username: TheCodingCody
 github_username:  CodySchaaf
+disqus_short_name: codingwithcody
 
 # Build settings
 markdown: kramdown
