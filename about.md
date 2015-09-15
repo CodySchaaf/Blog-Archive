@@ -4,8 +4,9 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](http://jekyllrb.com/)
-
-You can find the source code for the Jekyll new theme at: [github.com/jglovier/jekyll-new](https://github.com/jglovier/jekyll-new)
-
-You can find the source code for Jekyll at [github.com/jekyll/jekyll](https://github.com/jekyll/jekyll)
+Hi! 
+My name is Cody Schaaf. 
+I’m a web developer, game maker, and technology enthusiast.  
+I spend most of my time these days bouncing between different javascript libraries, Rails, and Scala, but I’m pretty language agnostic.
+My specialties at the moment are AngularJs and Scala.
+I enjoy nothing more than learning new languages and frameworks.  Feel free to contact me with questions/comments/anything. 
