@@ -3,6 +3,7 @@ title: Coding With Cody
 email: codyjschaaf@gmail.com
 description: > # this means to ignore newlines until "baseurl:"
   Come learn with me.
+  For comments please file an issue or pull request at https://github.com/CodySchaaf/Blog/issues
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://codyschaaf.com" # the base hostname & protocol for your site
 twitter_username: TheCodingCody
