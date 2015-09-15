@@ -1,0 +1,30 @@
+# Site settings
+title: Coding With Cody
+email: codyjschaaf@gmail.com
+description: > # this means to ignore newlines until "baseurl:"
+  Come learn with me.
+baseurl: "" # the subpath of your site, e.g. /blog/
+url: "http://codyschaaf.com" # the base hostname & protocol for your site
+twitter_username: TheCodingCody
+github_username:  CodySchaaf
+
+# Build settings
+markdown: kramdown
+
+exclude: [.bundle, bin, vendor]
+
+twitter:
+  username: TheCodingCody                              # Add your Twitter handle
+
+gems:
+  - octopress-codeblock
+  - octopress-codefence
+  - octopress-image-tag
+  - octopress-quote-tag
+  - octopress-solarized
+  - octopress-social
+  - octopress-linkblog
+  - octopress-filter-tag
+  - octopress-filters
+  - octopress-comment-tag
+  - jekyll-sitemap

@@ -1,0 +1,7 @@
+_site
+.sass-cache
+_deploy.yml
+.bundle
+bin
+vendor
+.idea
