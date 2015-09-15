@@ -6,9 +6,20 @@
 </description>
     <link>http://codyschaaf.com/</link>
     <atom:link href="http://codyschaaf.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 14 Sep 2015 22:25:48 -0700</pubDate>
-    <lastBuildDate>Mon, 14 Sep 2015 22:25:48 -0700</lastBuildDate>
+    <pubDate>Mon, 14 Sep 2015 22:54:50 -0700</pubDate>
+    <lastBuildDate>Mon, 14 Sep 2015 22:54:50 -0700</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
+    
+      <item>
+        <title>Angular Form Errors</title>
+        <description>
+</description>
+        <pubDate>Mon, 14 Sep 2015 22:11:38 -0700</pubDate>
+        <link>http://codyschaaf.com/2015/09/14/angular-form-errors.html</link>
+        <guid isPermaLink="true">http://codyschaaf.com/2015/09/14/angular-form-errors.html</guid>
+        
+        
+      </item>
     
       <item>
         <title>Takeaways From RailsConf 2014</title>

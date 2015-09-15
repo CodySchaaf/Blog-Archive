@@ -252,6 +252,10 @@ pre {
 .page-content {
   padding: 30px 0; }
 
+.h5 {
+  text-transform: uppercase;
+  font-size: 12px; }
+
 .page-heading {
   font-size: 20px; }
 
@@ -262,7 +266,7 @@ pre {
     margin-bottom: 30px; }
 
 .post-meta {
-  font-size: 14px;
+  font-size: 12px;
   color: #828282; }
 
 .post-link {
@@ -274,6 +278,9 @@ pre {
  */
 .post-header {
   margin-bottom: 30px; }
+
+.post-link-container {
+  margin-bottom: 0px; }
 
 .post-title {
   font-size: 42px;
