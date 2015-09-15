@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+  <link href='/stylesheets/all-c07132c630344209d0161afe4a08bb13.css' media='all' rel='stylesheet' type='text/css'>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Takeaways From RailsConf 2014</title>
+  <meta name="description" content="Once everyone got passed the ‘The Death To TDD’ hysteria, this yearsmost influential talks focused heavily on refactoring. This wasmy first Rails conference,...">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://codyschaaf.com/2014/05/13/takeaways-from-railsconf-2014.html">
+  <link rel="alternate" type="application/rss+xml" title="Coding With Cody" href="http://codyschaaf.com/feed.xml" />
+</head>
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Coding With Cody</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Takeaways From RailsConf 2014</h1>
+    <p class="post-meta">May 13, 2014</p>
+  </header>
+
+  <article class="post-content">
+    <p>Once everyone got passed the ‘The Death To TDD’ hysteria, this years
+most influential talks focused heavily on refactoring. This was
+my first Rails conference, and while I have alway attempted to write maintainable
+and clean code, I was always a little gun-shy when it came to massive refactoring.
+When do you break something into a new class, and when is a method too long?</p>
+
+<p>Starting a little simpler, one of my favorite talks was actually a workshop
+on day one. It was with <a href="http://tutecosta.com/">Tute Costa</a>, where he took us
+through some short examples of some really chaotic code, and after giving us
+a few pointers, he set us loose on refactoring it.</p>
+
+<h2 id="taming-the-flow-of-control">Taming the Flow of Control</h2>
+
+<p>We started out with one of my favorite refactoring techniques, mostly because
+it is so simple and the least disrupting of the refactoring techniques yet can
+still make a huge difference in readability. This is the code he gave us:</p>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">1-intention-revealing-method</span><a class="code-highlight-caption-link" href="https://github.com/tute/refactoring-workshop/blob/master/1-intention-revealing-method/app.rb">link</a></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">ProjectsController</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">index</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1"># When user is admitted at least a week ago we show it&#39;s active projects</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="n">current_user</span> <span class="o">&amp;&amp;</span> <span class="n">current_user</span><span class="o">.</span><span class="n">created_at</span> <span class="o">&lt;</span> <span class="p">(</span><span class="no">Time</span><span class="o">.</span><span class="n">now</span> <span class="o">-</span> <span class="mi">7</span><span class="o">*</span><span class="mi">24</span><span class="o">*</span><span class="mi">3600</span><span class="p">)</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="vi">@projects</span> <span class="o">=</span> <span class="n">current_user</span><span class="o">.</span><span class="n">active_projects</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1"># If not admitted we show some featured projects, and set a marketing flash</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1"># message when user is new</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">else</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">if</span> <span class="n">current_user</span> <span class="o">&amp;&amp;</span> <span class="n">current_user</span><span class="o">.</span><span class="n">created_at</span> <span class="o">&gt;</span> <span class="p">(</span><span class="no">Time</span><span class="o">.</span><span class="n">now</span> <span class="o">-</span> <span class="mi">7</span><span class="o">*</span><span class="mi">24</span><span class="o">*</span><span class="mi">3600</span><span class="p">)</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="vi">@flash_msg</span> <span class="o">=</span> <span class="s1">&#39;Sign up for having your own projects, and see promo ones!&#39;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">end</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="vi">@projects</span> <span class="o">=</span> <span class="no">Project</span><span class="o">.</span><span class="n">featured</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span></div></div></pre></div></figure>
+
+<p>He told us that a simple technique he uses is to just take the comment, and
+convert it into the method name that is called by the if statement. Here is what
+I did:</p>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">My Revision</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">ProjectsController</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">index</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="n">user_created_more_than_a_week_ago?</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="vi">@projects</span> <span class="o">=</span> <span class="n">current_user</span><span class="o">.</span><span class="n">active_projects</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">else</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="vi">@flash_msg</span> <span class="o">=</span> <span class="s1">&#39;Sign up for having your own projects, and see promo ones!&#39;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="vi">@projects</span> <span class="o">=</span> <span class="no">Project</span><span class="o">.</span><span class="n">featured</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">user_created_more_than_a_week_ago?</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">current_user</span> <span class="o">&amp;&amp;</span> <span class="n">current_user</span><span class="o">.</span><span class="n">created_at</span> <span class="o">&lt;</span>  <span class="n">weeks_ago</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">weeks_ago</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="no">Time</span><span class="o">.</span><span class="n">now</span> <span class="o">-</span> <span class="n">n</span> <span class="o">*</span> <span class="mi">7</span><span class="o">*</span><span class="mi">24</span><span class="o">*</span><span class="mi">3600</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span></div></div></pre></div></figure>
+
+<p>As you can see the first long cryptic if statement was easily reduced to a much
+more readable sentence-like method. Further more through this process it became
+clear that the nested if check wasn’t even needed.</p>
+
+<h2 id="polymorphism-at-its-finest">Polymorphism at its Finest</h2>
+
+<p>I had never used polymorphism quite like this before. Instead of constantly checking
+that the object we are dealing with can respond to a given method, we simply ensure that all
+objects at this point in the code have some way of responding to it. Now when I put
+it like that it sounds so obvious. But what about when we don’t find the object we are looking for.
+Why shouldn’t the same concept still apply here. This is the idea that was presented to
+use before we started to takle this next part.</p>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">2-special-case-objects</span><a class="code-highlight-caption-link" href="https://github.com/tute/refactoring-workshop/blob/master/2-special-case-objects/app.rb">link</a></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">StatusReportJob</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">perform</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">users</span> <span class="o">=</span> <span class="p">&#x7b;&#x7d;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="no">User</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">user</span><span class="o">|</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="n">users</span><span class="o">[</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="o">]</span> <span class="o">=</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nb">name</span><span class="p">:</span> <span class="n">last_name</span><span class="p">(</span><span class="n">user</span><span class="p">),</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="ss">status</span><span class="p">:</span> <span class="n">last_status</span><span class="p">(</span><span class="n">user</span><span class="p">),</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="ss">trial_days</span><span class="p">:</span> <span class="n">last_trial_days</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="p">&#x7d;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">users</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kp">private</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">last_name</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span> <span class="o">&amp;&amp;</span> <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span><span class="o">.</span><span class="n">respond_to?</span><span class="p">(</span><span class="ss">:name</span><span class="p">)</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span><span class="o">.</span><span class="n">name</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">else</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="s1">&#39;none&#39;</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">last_status</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span> <span class="o">&amp;&amp;</span> <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span><span class="o">.</span><span class="n">respond_to?</span><span class="p">(</span><span class="ss">:status</span><span class="p">)</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span><span class="o">.</span><span class="n">status</span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">else</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="s1">&#39;-&#39;</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">last_trial_days</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span> <span class="o">&amp;&amp;</span> <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span><span class="o">.</span><span class="n">respond_to?</span><span class="p">(</span><span class="ss">:trial_days</span><span class="p">)</span>
+</div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span><span class="o">.</span><span class="n">trial_days</span>
+</div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">else</span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="s1">&#39;-&#39;</span>
+</div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="38" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="39" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span></div></div></pre></div></figure>
+
+<p>The basic idea behind this refactoring was to have a subscription object in preform
+that would always be able to respond to the methods called on it. So when
+null would have originally been returned, instead a <code>NullSubscription</code> object which responds
+to these methods is returned. Transforming all of that code to this:</p>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">My Revision</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">StatusReportJob</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">perform</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">users</span> <span class="o">=</span> <span class="p">&#x7b;&#x7d;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="no">User</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">user</span><span class="o">|</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="n">last_subscription</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">last_subscription</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="n">users</span><span class="o">[</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="o">]</span> <span class="o">=</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nb">name</span><span class="p">:</span> <span class="n">last_subscription</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="ss">status</span><span class="p">:</span> <span class="n">last_subscription</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="ss">trial_days</span><span class="p">:</span> <span class="n">last_subscription</span><span class="o">.</span><span class="n">trial_days</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="p">&#x7d;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">users</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span></div></div></pre></div></figure>
+
+<p>with a <code>Subscription</code>, and <code>NullSubscription</code> class defined like this:</p>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">My Revision Classes</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">Subscription</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">name</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="s1">&#39;Monthly Subscription&#39;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">status</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="s1">&#39;active&#39;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">trial_days</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="mi">14</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">cancel</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1"># telling payment gateway...</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kp">true</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">User</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1"># ...</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">last_subscription</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">subscriptions</span><span class="o">.</span><span class="n">last</span> <span class="o">||</span> <span class="no">NullSubscription</span><span class="o">.</span><span class="n">new</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1"># ...</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">NullSubscription</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">cancel</span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kp">false</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">name</span>
+</div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="s1">&#39;none&#39;</span>
+</div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">status</span>
+</div></div><div data-line="38" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="s1">&#39;-&#39;</span>
+</div></div><div data-line="39" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="40" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="41" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">trial_days</span>
+</div></div><div data-line="42" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="s1">&#39;-&#39;</span>
+</div></div><div data-line="43" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="44" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span></div></div></pre></div></figure>
+
+<p>As you can see last_subscription tries to find your last subscription for you,
+but when it fails it returns a new instance of NullSubscription. Then when <code>last_subscription.name</code>
+is called, we get <code>'none'</code> returned if it dosen’t exist, or <code>'Monthly Subscription'</code> if it does.</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="n">users</span><span class="o">[</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="o">]</span> <span class="o">=</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nb">name</span><span class="p">:</span> <span class="n">last_subscription</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="c1"># =&gt; &#39;none&#39; or Monthly Subscription</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="ss">status</span><span class="p">:</span> <span class="n">last_subscription</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="ss">trial_days</span><span class="p">:</span> <span class="n">last_subscription</span><span class="o">.</span><span class="n">trial_days</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">Subscription</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">name</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="s1">&#39;Monthly Subscription&#39;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">#...</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">NullSubscription</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">name</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="s1">&#39;none&#39;</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">#...</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span></div></div></pre></div></figure>
+
+<h2 id="we-can-rebuild-him-we-have-the-technology">We Can Rebuild Him, We Have the Technology</h2>
+
+<p>Now for some truly horrific code. This is the code one comes up with when they are
+wrestling to get something to work and just keep throwing lines at it hoping
+something will stick. Now it’s time to refactor it and make it not only work, but
+also have it <em>look</em> like it works.</p>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">3-replace-method-with-method-object</span><a class="code-highlight-caption-link" href="https://github.com/tute/refactoring-workshop/blob/master/3-replace-method-with-method-object/app.rb">link</a></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># 1. Create a class with same initialization arguments as BIGMETHOD</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># 2. Copy &amp; Paste the method&#39;s body in the new class, with no arguments</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># 3. Replace original method with a call to the new class</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># 4. Apply &quot;Intention Revealing Method&quot; to the new class. Woot!</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">Formatter</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1"># More code, methods, and stuff in this big class</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">row_per_day_format</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">file</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">open</span> <span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;r:ISO-8859-1&#39;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1"># hash[NivelConsistencia][date] = [[value, status]]</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nb">hash</span> <span class="o">=</span> <span class="p">&#x7b;</span> <span class="s1">&#39;1&#39;</span> <span class="o">=&gt;</span> <span class="p">&#x7b;&#x7d;,</span> <span class="s1">&#39;2&#39;</span> <span class="o">=&gt;</span> <span class="p">&#x7b;&#x7d;</span> <span class="p">&#x7d;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">dates</span> <span class="o">=</span> <span class="o">[]</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="no">CSV</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="ss">col_sep</span><span class="p">:</span> <span class="s1">&#39;;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">next</span> <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">empty?</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">next</span> <span class="k">if</span> <span class="n">row</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=~</span> <span class="sr">/^\/\//</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="n">date</span> <span class="o">=</span> <span class="no">Date</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">row</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span><span class="p">)</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="p">(</span><span class="mi">13</span><span class="o">.</span><span class="n">.</span><span class="mi">43</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">measurement_date</span> <span class="o">=</span> <span class="n">date</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">13</span><span class="p">)</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="c1"># If NumDiasDeChuva is empty it means no data</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">value</span>  <span class="o">=</span> <span class="n">row</span><span class="o">[</span><span class="mi">7</span><span class="o">].</span><span class="n">nil?</span> <span class="p">?</span> <span class="o">-</span><span class="mi">99</span><span class="o">.</span><span class="mi">9</span> <span class="p">:</span> <span class="n">row</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">status</span> <span class="o">=</span> <span class="n">row</span><span class="o">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">31</span><span class="o">]</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">hash_value</span> <span class="o">=</span> <span class="o">[</span><span class="n">value</span><span class="p">,</span> <span class="n">status</span><span class="o">]</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">dates</span> <span class="o">&lt;&lt;</span> <span class="n">measurement_date</span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nb">hash</span><span class="o">[</span><span class="n">row</span><span class="o">[</span><span class="mi">1</span><span class="o">]][</span><span class="n">measurement_date</span><span class="o">]</span> <span class="o">=</span> <span class="n">hash_value</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">end</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">dates</span><span class="o">.</span><span class="n">uniq</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">date</span><span class="o">|</span>
+</div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">if</span> <span class="o">!</span><span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;1&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">].</span><span class="n">nil?</span> <span class="o">&amp;&amp;</span> <span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;2&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">].</span><span class="n">nil?</span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="c1"># Only &#39;bruto&#39; (good)</span>
+</div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">value</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;1&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span>
+</div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;</span><span class="si">#&#x7b;</span><span class="n">date</span><span class="si">&#x7d;</span><span class="se">\t</span><span class="si">#&#x7b;</span><span class="n">value</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="si">&#x7d;</span><span class="se">\t</span><span class="si">#&#x7b;</span><span class="n">value</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="si">&#x7d;</span><span class="se">\n</span><span class="s2">&quot;</span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">elsif</span> <span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;1&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">].</span><span class="n">nil?</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;2&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">].</span><span class="n">nil?</span>
+</div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="c1"># Only &#39;consistido&#39; (kind of good)</span>
+</div></div><div data-line="38" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">value</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;2&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span>
+</div></div><div data-line="39" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;</span><span class="si">#&#x7b;</span><span class="n">date</span><span class="si">&#x7d;</span><span class="se">\t</span><span class="si">#&#x7b;</span><span class="n">value</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="si">&#x7d;</span><span class="se">\t</span><span class="si">#&#x7b;</span><span class="n">value</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="si">&#x7d;</span><span class="se">\n</span><span class="s2">&quot;</span>
+</div></div><div data-line="40" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">else</span>
+</div></div><div data-line="41" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="c1"># &#39;bruto&#39; y &#39;consistido&#39; (has new and old data)</span>
+</div></div><div data-line="42" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">old_value</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;1&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span>
+</div></div><div data-line="43" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">new_value</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">[</span><span class="s1">&#39;2&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span>
+</div></div><div data-line="44" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">str</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;</span><span class="si">#&#x7b;</span><span class="n">date</span><span class="si">&#x7d;</span><span class="se">\t</span><span class="si">#&#x7b;</span><span class="n">new_value</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="si">&#x7d;</span><span class="se">\t</span><span class="si">#&#x7b;</span><span class="n">old_value</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="si">&#x7d;</span><span class="se">\t</span><span class="si">#&#x7b;</span><span class="n">old_value</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="si">&#x7d;</span><span class="se">\n</span><span class="s2">&quot;</span>
+</div></div><div data-line="45" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">end</span>
+</div></div><div data-line="46" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="47" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="48" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">str</span>
+</div></div><div data-line="49" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="50" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="51" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1"># More code, methods, and stuff in this big class</span>
+</div></div><div data-line="52" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span></div></div></pre></div></figure>
+
+<p>Now the idea here was to dismantel this method into its components, I gave it
+my best but his solution was a little more elagent so I’ve decided to use his instead.</p>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">Tute Costa's Solution</span><a class="code-highlight-caption-link" href="https://github.com/tute/refactoring-workshop/blob/tute-solutions/3-replace-method-with-method-object/app-solution-tute.rb">link</a></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">FormatAtoB</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="no">SIN_DATOS</span> <span class="o">=</span> <span class="o">-</span><span class="mi">99</span><span class="o">.</span><span class="mi">9</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@file_name</span> <span class="o">=</span> <span class="n">file_name</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@hash</span>  <span class="o">=</span> <span class="p">&#x7b;</span> <span class="s1">&#39;1&#39;</span> <span class="o">=&gt;</span> <span class="p">&#x7b;&#x7d;,</span> <span class="s1">&#39;2&#39;</span> <span class="o">=&gt;</span> <span class="p">&#x7b;&#x7d;</span> <span class="p">&#x7d;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@dates</span> <span class="o">=</span> <span class="o">[]</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">perform</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">load_format_a_file</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">format_data_to_b</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kp">private</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">load_format_a_file</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">file</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">open</span> <span class="vi">@file_name</span><span class="p">,</span> <span class="s1">&#39;r:ISO-8859-1&#39;</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="no">CSV</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="ss">col_sep</span><span class="p">:</span> <span class="s1">&#39;;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">next</span> <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">empty?</span> <span class="o">||</span> <span class="n">row</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=~</span> <span class="sr">/^\/\//</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="n">load_month_in_hash</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">format_data_to_b</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">formatted_rows</span> <span class="o">=</span> <span class="vi">@dates</span><span class="o">.</span><span class="n">uniq</span><span class="o">.</span><span class="n">map</span> <span class="p">&#x7b;</span> <span class="o">|</span><span class="n">date</span><span class="o">|</span> <span class="n">formatted_row_for</span><span class="p">(</span><span class="n">date</span><span class="p">)</span> <span class="p">&#x7d;</span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="s2">&quot;</span><span class="si">#&#x7b;</span><span class="n">formatted_rows</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="si">&#x7d;</span><span class="se">\n</span><span class="s2">&quot;</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">formatted_row_for</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">old_value</span> <span class="o">=</span> <span class="vi">@hash</span><span class="o">[</span><span class="s1">&#39;1&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span>
+</div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">new_value</span> <span class="o">=</span> <span class="vi">@hash</span><span class="o">[</span><span class="s1">&#39;2&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="n">dato_bruto?</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+</div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="n">day</span> <span class="o">=</span> <span class="o">[</span><span class="n">date</span><span class="p">,</span> <span class="n">old_value</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span> <span class="n">old_value</span><span class="o">[</span><span class="mi">1</span><span class="o">]]</span>
+</div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">elsif</span> <span class="n">dato_consistido?</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="n">day</span> <span class="o">=</span> <span class="o">[</span><span class="n">date</span><span class="p">,</span> <span class="n">new_value</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span> <span class="n">new_value</span><span class="o">[</span><span class="mi">1</span><span class="o">]]</span>
+</div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">else</span> <span class="c1"># &#39;bruto&#39; y &#39;consistido&#39;</span>
+</div></div><div data-line="38" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="n">day</span> <span class="o">=</span> <span class="o">[</span><span class="n">date</span><span class="p">,</span> <span class="n">new_value</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span> <span class="n">old_value</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="p">,</span> <span class="n">old_value</span><span class="o">[</span><span class="mi">0</span><span class="o">]]</span>
+</div></div><div data-line="39" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="40" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">day</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+</div></div><div data-line="41" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="42" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="43" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">load_month_in_hash</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+</div></div><div data-line="44" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@beginning_of_month</span> <span class="o">=</span> <span class="no">Date</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">row</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span><span class="p">)</span>
+</div></div><div data-line="45" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">(</span><span class="mi">13</span><span class="o">.</span><span class="n">.</span><span class="mi">43</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+</div></div><div data-line="46" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="n">load_day_in_hash</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</div></div><div data-line="47" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="48" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="49" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="50" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">load_day_in_hash</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</div></div><div data-line="51" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">nivel_consistencia</span> <span class="o">=</span> <span class="n">row</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span>
+</div></div><div data-line="52" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">date</span> <span class="o">=</span> <span class="vi">@beginning_of_month</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">13</span><span class="p">)</span>
+</div></div><div data-line="53" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@dates</span> <span class="o">&lt;&lt;</span> <span class="n">date</span>
+</div></div><div data-line="54" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@hash</span><span class="o">[</span><span class="n">nivel_consistencia</span><span class="o">][</span><span class="n">date</span><span class="o">]</span> <span class="o">=</span> <span class="n">datos</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</div></div><div data-line="55" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="56" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="57" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1"># If NumDiasDeChuva is empty it means no data</span>
+</div></div><div data-line="58" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">datos</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</div></div><div data-line="59" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">data</span> <span class="o">=</span> <span class="n">row</span><span class="o">[</span><span class="mi">7</span><span class="o">].</span><span class="n">nil?</span> <span class="p">?</span> <span class="no">SIN_DATOS</span> <span class="p">:</span> <span class="n">row</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
+</div></div><div data-line="60" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">status</span> <span class="o">=</span> <span class="n">row</span><span class="o">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">31</span><span class="o">]</span>
+</div></div><div data-line="61" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">[</span><span class="n">data</span><span class="p">,</span> <span class="n">status</span><span class="o">]</span>
+</div></div><div data-line="62" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="63" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="64" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">dato_bruto?</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+</div></div><div data-line="65" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@hash</span><span class="o">[</span><span class="s1">&#39;1&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="vi">@hash</span><span class="o">[</span><span class="s1">&#39;2&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">].</span><span class="n">nil?</span>
+</div></div><div data-line="66" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="67" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="68" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">dato_consistido?</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+</div></div><div data-line="69" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@hash</span><span class="o">[</span><span class="s1">&#39;1&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">].</span><span class="n">nil?</span> <span class="o">&amp;&amp;</span> <span class="vi">@hash</span><span class="o">[</span><span class="s1">&#39;2&#39;</span><span class="o">][</span><span class="n">date</span><span class="o">]</span>
+</div></div><div data-line="70" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="71" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span>
+</div></div><div data-line="72" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="73" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">Formatter</span>
+</div></div><div data-line="74" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">row_per_day_format</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+</div></div><div data-line="75" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="no">FormatAtoB</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span><span class="o">.</span><span class="n">perform</span>
+</div></div><div data-line="76" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="77" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span></div></div></pre></div></figure>
+
+<p>There could still be a lot more done here, I mean are you really ever done refactoring?
+But I think this grasps some of the main ideas. You want to make use of instance variables
+to allow for the method to be broken up without having to pass lists of
+variables from method to method. It is useful to find the variables that are inherent to the class itself.
+Make those your instance variables. From there your goal is simpler, you need to
+basically construct these variables to some final product, one chunk at a time. There is still a lot going
+on here, but it definitely looks slightly less overwhelming when looking at manageable chunks.</p>
+
+<p>The best part is that you now have a <code>FormatAtoB</code> class that can go in its own file. You shouldn’t have to add much to this file
+in the future since <code>AtoB</code> is not likely to change since A should remain A and like wise with B. More importantly
+you have a much cleaner <code>Formatter</code> class, now when you need a new format you can add that class to its own file and
+just worry about calling the right one in <code>Formatter</code>. Now each class has a <a href="http://en.wikipedia.org/wiki/Single_responsibility_principle">single responsibility</a>
+, and is much less dependent on future changes making your code much more <a href="http://en.wikipedia.org/wiki/Solid_%28object-oriented_design%29">SOLID</a>.</p>
+
+<h2 id="getting-the-user-into-shape">Getting the User Into Shape</h2>
+
+<p>For this last part, I need one to imagine a massive user model. This refactoring
+on its own may seem like it is making it more complicated, but when one realizes
+that they are moving all of this code out of a bloated class it makes more sense.</p>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">4-service-objects</span><a class="code-highlight-caption-link" href="https://github.com/tute/refactoring-workshop/blob/master/4-service-objects/app.rb">link</a></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">User</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kp">attr_accessor</span> <span class="ss">:subscription</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1"># validations</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1"># callbacks</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1"># authentication logic</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1"># notifications logic</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">subscribe</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">api_result</span> <span class="o">=</span> <span class="n">try_api</span> <span class="p">&#x7b;</span> <span class="no">PaymentGateway</span><span class="o">.</span><span class="n">subscribe</span> <span class="p">&#x7d;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="n">api_result</span> <span class="o">==</span> <span class="ss">:success</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nb">self</span><span class="o">.</span><span class="n">subscription</span> <span class="o">=</span> <span class="ss">:monthly_plan</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">api_result</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">unsubscribe</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">api_result</span> <span class="o">=</span> <span class="n">try_api</span> <span class="p">&#x7b;</span> <span class="no">PaymentGateway</span><span class="o">.</span><span class="n">unsubscribe</span> <span class="p">&#x7d;</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="n">api_result</span> <span class="o">==</span> <span class="ss">:success</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nb">self</span><span class="o">.</span><span class="n">subscription</span> <span class="o">=</span> <span class="kp">nil</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">api_result</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kp">private</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1"># Try API connection, trap and log it on failures</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">try_api</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">yield</span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">rescue</span> <span class="no">SystemCallError</span> <span class="o">=&gt;</span> <span class="n">e</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1"># log API connection failure</span>
+</div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="ss">:network_error</span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1"># Other private methods</span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span></div></div></pre></div></figure>
+
+<p>Now all of this code really should be part of some subscription class, but since it
+depends on the user it seems to have just been crammed into this model. It doesn’t
+look like much, but remember this is a user model that typically has hundreds of other
+lines of code, likely with more examples of logic that need to be moved out as well.
+To move this code out though you are going to need pass along the user. Originally I wanted to make
+an instance variable called user and pass him into the initialization, but I found out
+that there is a slightly sexier way to go about it through the use of a <code>Struct</code>.</p>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">Tute Costa's Solution</span><a class="code-highlight-caption-link" href="https://github.com/tute/refactoring-workshop/blob/tute-solutions/4-service-objects/app-solution-tute.rb">link</a></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">SubscriptionService</span> <span class="o">&lt;</span> <span class="no">Struct</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:user</span><span class="p">)</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">subscribe</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">api_result</span> <span class="o">=</span> <span class="n">try_api</span> <span class="p">&#x7b;</span> <span class="no">PaymentGateway</span><span class="o">.</span><span class="n">subscribe</span> <span class="p">&#x7d;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="n">api_result</span> <span class="o">==</span> <span class="ss">:success</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="n">user</span><span class="o">.</span><span class="n">subscription</span> <span class="o">=</span> <span class="ss">:monthly_plan</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">api_result</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">unsubscribe</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">api_result</span> <span class="o">=</span> <span class="n">try_api</span> <span class="p">&#x7b;</span> <span class="no">PaymentGateway</span><span class="o">.</span><span class="n">unsubscribe</span> <span class="p">&#x7d;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="n">api_result</span> <span class="o">==</span> <span class="ss">:success</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="n">user</span><span class="o">.</span><span class="n">subscription</span> <span class="o">=</span> <span class="kp">nil</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">end</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">api_result</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kp">private</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1"># Try API connection, trap and log it on failures</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">try_api</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">yield</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">rescue</span> <span class="no">SystemCallError</span> <span class="o">=&gt;</span> <span class="n">e</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1"># log API connection failure</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="ss">:network_error</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nc">User</span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kp">attr_accessor</span> <span class="ss">:subscription</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1"># Podría ser delegate :subscribe, :unsubscribe, to: :subscription_service</span>
+</div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">subscribe</span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">subscription_service</span><span class="o">.</span><span class="n">subscribe</span>
+</div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="38" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="39" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">unsubscribe</span>
+</div></div><div data-line="40" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">subscription_service</span><span class="o">.</span><span class="n">unsubscribe</span>
+</div></div><div data-line="41" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="42" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="43" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kp">private</span>
+</div></div><div data-line="44" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="45" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">def</span> <span class="nf">subscription_service</span>
+</div></div><div data-line="46" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@subscription_service</span> <span class="o">||=</span> <span class="no">SubscriptionService</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+</div></div><div data-line="47" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">end</span>
+</div></div><div data-line="48" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">end</span></div></div></pre></div></figure>
+
+<p>This allows us to simply pass the user into <code>SubscriptionService.new(self)</code> and
+from there we call user instead of self to get the desired results.
+This really cleans up the user model. I also want to point out how through
+the use of <code>@subscription_service ||= SubscriptionService.new(self)</code> we ensure
+that a new instance is only created if we need it. We didn’t even change the users
+API since it still has a suscribe and unsubscribe method, they just employ the
+<code>subscription_service</code> class. This means that all of our original tests should
+be completely unaffected.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>In summary the biggest favor you can do yourself before refactoring is to make sure
+you have a comprehensive test suit. Once that is in place you are able to freely change
+code without having to worry about secretly breaking functionality. To give this a try
+for yourself fork the repository here <code>https://github.com/tute/refactoring-workshop</code>,
+and refactor away. Run the tests suit to ensure you didn’t break anything. Good luck, and happy
+coding.</p>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Coding With Cody</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Coding With Cody</li>
+          <li><a href="mailto:codyjschaaf@gmail.com">codyjschaaf@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/CodySchaaf">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">CodySchaaf</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/TheCodingCody">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">TheCodingCody</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Come learn with me.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+  </body>
+
+</html>
