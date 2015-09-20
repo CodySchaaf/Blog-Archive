@@ -1,1 +1,782 @@
+<!DOCTYPE html>
+<html>
+  <link href='/stylesheets/all-c07132c630344209d0161afe4a08bb13.css' media='all' rel='stylesheet' type='text/css'>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <title>Angular Form Errors</title>
+  <meta name="description" content="One of the most frustrating UX pitfalls, one which people new to Angular often utilize, is disabling buttons to show that a form is not yet valid (ng-disable...">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://codyschaaf.com/2015/09/14/angular-form-errors.html">
+  <link rel="alternate" type="application/rss+xml" title="Coding With Cody" href="http://codyschaaf.com/feed.xml" />
+</head>
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Coding With Cody</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Angular Form Errors</h1>
+    <p class="post-meta">Sep 14, 2015</p>
+  </header>
+
+  <article class="post-content">
+    <p>One of the most frustrating UX pitfalls, one which people new to Angular often utilize, is disabling buttons
+ to show that a form is not yet valid (ng-disabled). A user that is looking for the input button probably thinks they have finished
+ entering their details, but a disabled button leaves them stuck. A better solution is an interactive form, that
+ highlights errors when a user attempts to advance when the form is invalid.</p>
+
+<p>To solve this I have created 3 core directives which will be placed throughout to allow for a much better user experience.</p>
+
+<p>In angular each form element (or ng-form attribute) will create a new formController. This controller can be leveraged
+to determine the validity of the form. The 3 directives will be an <code>errorsSubmit</code> directive, an <code>errorsForm</code> directive, as well as
+just an <code>errors</code> directive. The way they will work is that all errors will be hidden from a user regardless of the forms
+current validity state. Once the user is done submitting their information they will hit the submit button which will
+have the errorsSubmit directive on it. This directive will ensure that the form is valid before submitting. If the form is 
+invalid it will block the submit/click action of the button, and then signal the errorsForm directive that an invalid submit 
+was triggered. Then the errorsForm directive will apply the reveal-errors class to the form, as well as find the first 
+invalid input field and scroll to that position. With the new class applied we will have the error revealed for the user to fix.
+The errors directive will allow for greater fine tuning as well as house the communication data.</p>
+
+<p>To start we need a new module, or use your existing app. I have written these in typescript for legibility, but
+ you can view their javascript equivalents at their corresponding codepens.</p>
+
+<div data-toggle=""></div>
+<div data-toggle-ts-js="">
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrors module setup</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">module</span> <span class="nx">cs</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kr">export</span> <span class="kd">var</span> <span class="nx">csErrors</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IModule</span> <span class="o">=</span> <span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s2">&quot;csErrors&quot;</span><span class="p">,</span> <span class="p">[]);</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
+
+
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrors module setup</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">cs</span> <span class="o">=</span> <span class="nx">cs</span> <span class="o">||</span> <span class="p">&#x7b;&#x7d;;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">cs</span><span class="p">.</span><span class="nx">csErrors</span> <span class="o">=</span> <span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s2">&quot;csErrors&quot;</span><span class="p">,</span> <span class="p">[]);</span></div></div></pre></div></figure>
+
+</div>
+
+<p>Then we will setup the first directive, the <code>errorsSubmit</code> directive will have the following directive deceleration.</p>
+
+<p>We give it a scope false, because this directive isn’t applying any new elements or any new packaged 
+content that would require a new scope context, it is simply adding additional functionality to what already functions.
+It requires the form from the current scope for validity checks.</p>
+
+<p>It needs a priority of -1 to ensure that the link function is run before the link function of ng-click and ng-submit which both
+have the default priority of 0. We use -1 because although the controller functions are run according to their priority, the
+link function is run in reverse order of priority. Since the click event is added in the link function for ng-click, we will
+do the same.</p>
+
+<p>Finally we use the link function because it is taboo to inject the element into the controller, as well as we are doing mostly
+dom work.</p>
+
+<p><em>You’ll notice I’m prefixing my directives with cs (CodySchaaf) since errors is a bit common, this will prevent any 
+clashes with future angular version that might release a directive with the same name, or future html standards that 
+could release an attribute with the same name; sort of like angular’s ng</em></p>
+
+<div data-toggle=""></div>
+<div data-toggle-ts-js="">
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrorsSubmit directive</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">cs</span><span class="p">.</span><span class="nx">csErrors</span><span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s2">&quot;csErrorsSubmit&quot;</span><span class="p">,</span> <span class="p">()</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IDirective</span> <span class="o">=&gt;</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">restrict</span><span class="o">:</span>   <span class="s2">&quot;A&quot;</span><span class="p">,</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">scope</span><span class="o">:</span>      <span class="kc">false</span><span class="p">,</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">require</span><span class="o">:</span>    <span class="s2">&quot;^form&quot;</span><span class="p">,</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">priority</span><span class="o">:</span>   <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1">//ensure it is run before ng-click with a 0 priority since link functions are run in reverse order</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">link</span><span class="o">:</span>       <span class="p">(</span><span class="nx">scope</span><span class="o">:</span> <span class="nx">Scope</span><span class="p">,</span> <span class="nx">element</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IAugmentedJQuery</span><span class="p">,</span> <span class="nx">attrs</span><span class="o">:</span> <span class="nx">Attr</span><span class="p">,</span> <span class="nx">formCtrl</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IFormController</span><span class="p">)</span><span class="o">:</span> <span class="nx">Link</span> <span class="o">=&gt;</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">return</span> <span class="k">new</span> <span class="nx">Link</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">,</span> <span class="nx">formCtrl</span><span class="p">);</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="p">&#x7d;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;);</span></div></div></pre></div></figure>
+
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrorsSubmit directive</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">cs</span><span class="p">.</span><span class="nx">csErrors</span><span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s2">&quot;csErrorsSubmit&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">return</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="nx">restrict</span><span class="o">:</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="nx">scope</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="nx">require</span><span class="o">:</span> <span class="s2">&quot;^form&quot;</span><span class="p">,</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="nx">priority</span><span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="nx">link</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">,</span> <span class="nx">formCtrl</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">              <span class="k">return</span> <span class="k">new</span> <span class="nx">Link</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">,</span> <span class="nx">formCtrl</span><span class="p">);</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="p">&#x7d;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="p">&#x7d;;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;);</span></div></div></pre></div></figure>
+
+
+</div>
+
+<p>In the link function we will setup the on click event. The handler will check that the formCtrl is valid, if it is invalid
+it will emit an event. This event is composed of the <code>REVEAL_ERRORS_EVENT</code> name and the form’s name. We want to make it specific
+to the form because we could have these setups nested and we want to ensure that we are talking to the correct form. We use $emit instead 
+of broadcast because the submit button will be nested inside the form and emit propagates up the scope.</p>
+
+<p>This works because of Angular’s awesome form handling. As long as you attach the appropriate ng-modal validating directives
+ to your inputs, this will be able to tell if the form is valid. This is because a form is only valid if all of the children
+ ng-models are valid. So by adding ng-required to all fields, the form will only be valid if all fields are answered and thus
+ this will only submit if all fields are answered.</p>
+
+<div data-toggle=""></div>
+<div data-toggle-ts-js="">
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrorsSubmit's link function</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">class</span> <span class="nx">Link</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">constructor</span><span class="p">(</span><span class="nx">scope</span><span class="o">:</span> <span class="nx">Scope</span><span class="p">,</span> <span class="nx">element</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IAugmentedJQuery</span><span class="p">,</span> <span class="nx">attrs</span><span class="o">:</span> <span class="nx">Attr</span><span class="p">,</span> <span class="nx">formCtrl</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IFormController</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">element</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="p">(</span><span class="nx">event</span><span class="o">:</span> <span class="nx">JQueryEventObject</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">if</span> <span class="p">(</span><span class="nx">formCtrl</span><span class="p">.</span><span class="nx">$invalid</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="nx">scope</span><span class="p">.</span><span class="nx">$emit</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span> <span class="o">+</span> <span class="nx">formCtrl</span><span class="p">.</span><span class="nx">$name</span><span class="p">);</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="nx">event</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="nx">event</span><span class="p">.</span><span class="nx">stopImmediatePropagation</span><span class="p">();</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">&#x7d;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="p">&#x7d;)</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kr">interface</span> <span class="nx">Attr</span> <span class="kr">extends</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IAttributes</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">errorsSubmit</span><span class="o">:</span> <span class="nx">string</span><span class="p">;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kr">interface</span> <span class="nx">Scope</span> <span class="kr">extends</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IScope</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">formCtrl</span><span class="o">:</span> <span class="nx">FormCtrl</span><span class="p">;</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">attrs</span><span class="o">:</span>    <span class="nx">Attr</span><span class="p">;</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;</span></div></div></pre></div></figure>
+
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrorsSubmit's link function</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">Link</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="kd">function</span> <span class="nx">Link</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">,</span> <span class="nx">formCtrl</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="nx">element</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">              <span class="k">if</span> <span class="p">(</span><span class="nx">formCtrl</span><span class="p">.</span><span class="nx">$invalid</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">                  <span class="nx">scope</span><span class="p">.</span><span class="nx">$emit</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span> <span class="o">+</span> <span class="nx">formCtrl</span><span class="p">.</span><span class="nx">$name</span><span class="p">);</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">                  <span class="nx">event</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">                  <span class="nx">event</span><span class="p">.</span><span class="nx">stopImmediatePropagation</span><span class="p">();</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">              <span class="p">&#x7d;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="p">&#x7d;);</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="p">&#x7d;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">return</span> <span class="nx">Link</span><span class="p">;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;)();</span></div></div></pre></div></figure>
+
+</div>
+
+<p>Additionally we can bake in some protection by checking that this button corrispondes with the enteded target. We will
+require that users of the directive pass in the name of the intended form. Then we check it against the name of the form
+that require found <code>errors-submit='form-name'</code></p>
+
+<p>This leaves us with:</p>
+
+<div data-toggle=""></div>
+<div data-toggle-ts-js="">
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrorsSubmit's link function</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">class</span> <span class="nx">Link</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">constructor</span><span class="p">(</span><span class="nx">scope</span><span class="o">:</span> <span class="nx">Scope</span><span class="p">,</span> <span class="nx">element</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IAugmentedJQuery</span><span class="p">,</span> <span class="nx">attrs</span><span class="o">:</span> <span class="nx">Attr</span><span class="p">,</span> <span class="nx">formCtrl</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IFormController</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">element</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="p">(</span><span class="nx">event</span><span class="o">:</span> <span class="nx">JQueryEventObject</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="k">if</span> <span class="p">(</span><span class="nx">attrs</span><span class="p">.</span><span class="nx">errorsSubmit</span> <span class="o">!==</span> <span class="nx">formCtrl</span><span class="p">.</span><span class="nx">$name</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="k">throw</span> <span class="s2">&quot;Provided name (&quot;</span> <span class="o">+</span> <span class="nx">attrs</span><span class="p">.</span><span class="nx">errorsSubmit</span> <span class="o">+</span> <span class="s2">&quot;) of form does not match:&quot;</span> <span class="o">+</span> <span class="nx">formCtrl</span><span class="p">.</span><span class="nx">$name</span><span class="p">;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="p">&#x7d;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="k">if</span> <span class="p">(</span><span class="nx">formCtrl</span><span class="p">.</span><span class="nx">$invalid</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="nx">scope</span><span class="p">.</span><span class="nx">$emit</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span> <span class="o">+</span> <span class="nx">formCtrl</span><span class="p">.</span><span class="nx">$name</span><span class="p">);</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="nx">event</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="nx">event</span><span class="p">.</span><span class="nx">stopImmediatePropagation</span><span class="p">();</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="p">&#x7d;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">&#x7d;)</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="p">&#x7d;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kr">interface</span> <span class="nx">Attr</span> <span class="kr">extends</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IAttributes</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">errorsSubmit</span><span class="o">:</span> <span class="nx">string</span><span class="p">;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kr">interface</span> <span class="nx">Scope</span> <span class="kr">extends</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IScope</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">formCtrl</span><span class="o">:</span> <span class="nx">FormCtrl</span><span class="p">;</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">attrs</span><span class="o">:</span>    <span class="nx">Attr</span><span class="p">;</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span></div></div></pre></div></figure>
+
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrorsSubmit's link function</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">Link</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">     <span class="kd">function</span> <span class="nx">Link</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">,</span> <span class="nx">formCtrl</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">         <span class="nx">element</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">             <span class="k">if</span> <span class="p">(</span><span class="nx">attrs</span><span class="p">.</span><span class="nx">errorsSubmit</span> <span class="o">!==</span> <span class="nx">formCtrl</span><span class="p">.</span><span class="nx">$name</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">                 <span class="k">throw</span> <span class="s2">&quot;Provided name (&quot;</span> <span class="o">+</span> <span class="nx">attrs</span><span class="p">.</span><span class="nx">errorsSubmit</span> <span class="o">+</span> <span class="s2">&quot;) of form does not match:&quot;</span> <span class="o">+</span> <span class="nx">formCtrl</span><span class="p">.</span><span class="nx">$name</span><span class="p">;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">             <span class="p">&#x7d;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">             <span class="k">if</span> <span class="p">(</span><span class="nx">formCtrl</span><span class="p">.</span><span class="nx">$invalid</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">                 <span class="nx">scope</span><span class="p">.</span><span class="nx">$emit</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span> <span class="o">+</span> <span class="nx">formCtrl</span><span class="p">.</span><span class="nx">$name</span><span class="p">);</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">                 <span class="nx">event</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">                 <span class="nx">event</span><span class="p">.</span><span class="nx">stopImmediatePropagation</span><span class="p">();</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">             <span class="p">&#x7d;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">         <span class="p">&#x7d;);</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">     <span class="p">&#x7d;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">     <span class="k">return</span> <span class="nx">Link</span><span class="p">;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line"> <span class="p">&#x7d;)();</span></div></div></pre></div></figure>
+
+</div>
+<p>Once this directive emits its event we will need something to catch it, in comes <code>csErrorsForm</code>.</p>
+
+<p>We will start with the directive definition, with just a scope false and link function:</p>
+
+<div data-toggle=""></div>
+<div data-toggle-ts-js="">
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrorsForm directive</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">cs</span><span class="p">.</span><span class="nx">csErrors</span><span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s2">&quot;csErrorsForm&quot;</span><span class="p">,</span> <span class="p">()</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IDirective</span> <span class="o">=&gt;</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">restrict</span><span class="o">:</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">scope</span><span class="o">:</span>    <span class="kc">false</span><span class="p">,</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">link</span><span class="o">:</span>     <span class="p">(</span><span class="nx">scope</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IScope</span><span class="p">,</span> <span class="nx">element</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IAugmentedJQuery</span><span class="p">,</span> <span class="nx">attrs</span><span class="o">:</span> <span class="nx">Attrs</span><span class="p">)</span><span class="o">:</span> <span class="nx">Link</span> <span class="o">=&gt;</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">return</span> <span class="k">new</span> <span class="nx">Link</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">);</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="p">&#x7d;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;);</span></div></div></pre></div></figure>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrorsForm directive</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">cs</span><span class="p">.</span><span class="nx">csErrors</span><span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s2">&quot;csErrorsForm&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">return</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="nx">restrict</span><span class="o">:</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="nx">scope</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="nx">link</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">              <span class="k">return</span> <span class="k">new</span> <span class="nx">Link</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">);</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="p">&#x7d;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="p">&#x7d;;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;);</span></div></div></pre></div></figure>
+
+
+</div>
+
+<p>For the implementation of the link function, we need access to the scope, the element, and the element’s attributes.</p>
+
+<p>The element is needed to add and remove the error classes. It will add a hide errors class on initialization, and then 
+remove that class, as well as add a reveal errors class once it receives the event from the <code>csErrorsSubmit</code> directive.
+This even will be listened to by the scope, with a scope.$on, and finally the attributes to get the form name and whether or 
+not you want the directive to scroll to fields that are invalid.</p>
+
+<div data-toggle=""></div>
+<div data-toggle-ts-js="">
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrorsForm's link function</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">class</span> <span class="nx">Link</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">constructor</span><span class="p">(</span><span class="nx">scope</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IScope</span><span class="p">,</span> <span class="nx">element</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IAugmentedJQuery</span><span class="p">,</span> <span class="nx">attrs</span><span class="o">:</span> <span class="nx">Attrs</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">element</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">HIDE_ERRORS_CLASS</span><span class="p">);</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">scope</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span> <span class="o">+</span> <span class="nx">attrs</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="p">()</span><span class="o">:</span> <span class="k">void</span> <span class="o">=&gt;</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">element</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_CLASS</span><span class="p">).</span><span class="nx">removeClass</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">HIDE_ERRORS_CLASS</span><span class="p">);</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">if</span> <span class="p">(</span><span class="nx">attrs</span><span class="p">.</span><span class="nx">csErrorsForm</span> <span class="o">===</span> <span class="s2">&quot;no-scroll&quot;</span><span class="p">)</span> <span class="p">&#x7b;</span><span class="k">return</span><span class="p">&#x7d;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="kd">var</span> <span class="nx">firstErroredElement</span><span class="o">:</span> <span class="nx">JQuery</span> <span class="o">=</span> <span class="nx">element</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;.ng-invalid&quot;</span><span class="p">).</span><span class="nx">first</span><span class="p">();</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">if</span> <span class="p">(</span><span class="nx">firstErroredElement</span><span class="p">.</span><span class="nx">length</span> <span class="o">!==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">angular</span><span class="p">.</span><span class="nx">element</span><span class="p">(</span><span class="s1">&#39;html, body&#39;</span><span class="p">).</span><span class="nx">animate</span><span class="p">(&#x7b;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="nx">scrollTop</span><span class="o">:</span> <span class="nx">firstErroredElement</span><span class="p">.</span><span class="nx">offset</span><span class="p">().</span><span class="nx">top</span> <span class="o">-</span> <span class="mi">100</span> <span class="c1">//100 px padding on scroll to top</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">&#x7d;,</span> <span class="mi">600</span><span class="p">);</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="p">&#x7d;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;);</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">interface</span> <span class="nx">Attrs</span> <span class="kr">extends</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IAttributes</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">name</span><span class="o">:</span> <span class="nx">string</span><span class="p">;</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">csErrorsForm</span><span class="o">?:</span> <span class="nx">string</span><span class="p">;</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
+
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrorsForm's link function</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">Link</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">function</span> <span class="nx">Link</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">element</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">HIDE_ERRORS_CLASS</span><span class="p">);</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">scope</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span> <span class="o">+</span> <span class="nx">attrs</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="nx">element</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_CLASS</span><span class="p">).</span><span class="nx">removeClass</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">HIDE_ERRORS_CLASS</span><span class="p">);</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="k">if</span> <span class="p">(</span><span class="nx">attrs</span><span class="p">.</span><span class="nx">csErrorsForm</span> <span class="o">===</span> <span class="s2">&quot;no-scroll&quot;</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">                <span class="k">return</span><span class="p">;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="p">&#x7d;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="kd">var</span> <span class="nx">firstErroredElement</span> <span class="o">=</span> <span class="nx">element</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;.ng-invalid&quot;</span><span class="p">).</span><span class="nx">first</span><span class="p">();</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="k">if</span> <span class="p">(</span><span class="nx">firstErroredElement</span><span class="p">.</span><span class="nx">length</span> <span class="o">!==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">                <span class="nx">angular</span><span class="p">.</span><span class="nx">element</span><span class="p">(</span><span class="s1">&#39;html, body&#39;</span><span class="p">).</span><span class="nx">animate</span><span class="p">(&#x7b;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">                    <span class="nx">scrollTop</span><span class="o">:</span> <span class="nx">firstErroredElement</span><span class="p">.</span><span class="nx">offset</span><span class="p">().</span><span class="nx">top</span> <span class="o">-</span> <span class="mi">100</span> <span class="c1">//100 px padding on scroll to top</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">                <span class="p">&#x7d;,</span> <span class="mi">600</span><span class="p">);</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="p">&#x7d;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">&#x7d;);</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="nx">Link</span><span class="p">;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;)();</span></div></div></pre></div></figure>
+
+</div>
+
+<p>First thing we do during initialization is add the <code>HIDE_ERRORS_CLASS</code>, this will allow you to target the form
+with pre-validation specific css.</p>
+
+<p>Next we listen for the <code>REVEAL_ERRORS_EVENT</code> that was emitted by <code>csErrorsSubmit</code> with <code>scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name...</code>
+You can see here that we are adding the form name to the event name to ensure that the message is intended for this form. 
+This is to allow for nesting of this implementation, you could also accomplish this by stopping the propagation, but I think this is more precise.
+The form name is pulled in from the form or ng-form element that this directive is placed on, since all forms should have a name attribute.</p>
+
+<p>Once we received this event we will add remove the <code>REVEAL_ERRORS_CLASS</code> and <code>HIDE_ERRORS_CLASS</code> respectively. This will allow 
+your css to apply errors for the invalid fields based on the form’s class as well as Angular’s invalid classes on inputs with
+<code>ng-model</code>.</p>
+
+<p>Finally we will want to determine if the implementation wants us to scroll, specified by omitting the no-scroll string 
+to the directive instance <code>&lt;div cs-errors-form&gt;</code> instead of <code>&lt;div cs-errors-form='no-scroll'&gt;</code>. If no-scroll is passed in we just return,
+otherwise we search for the first instance of an elements with the ng-invalid class <code>element.find(".ng-invalid").first()</code>. If we find one
+we use the baked in jquery scroll animation to scroll to it.</p>
+
+<p><em>Tip: us no scroll for small forms like login where scrolling would be more distracting than helpful</em></p>
+
+<p>Now for the styling. The first thing you will want to apply your non-error states to elements with the <code>ng-invalid</code> class.
+Most Angular apps will have invalid styles applied to their ui components by targeting the <code>ng-invalid</code> class.</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nt">input</span><span class="nc">.ng-invalid</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">border-color</span><span class="o">:</span> <span class="nb">red</span><span class="p">;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
+
+<p>The first thing you will want to do is remove this styling if the element is located inside the <code>cs-errors-form</code> directive.
+This will allow the input element to appear valid even if the user has failed to enter a valid input yet. Allowing the form
+to look pristine even if the user has yet to interact with it. There is also the ability to target ng-pristine, but that leaves
+ you helpless when a user has left a field pristine and is trying to submit the form.</p>
+
+<p>As the comment suggests this is also where you could add custom directives that utilize ng-model validations, like a
+date picker for example.</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="o">[</span><span class="nt">cs-errors-form</span><span class="o">]</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">//place any additional custom input field un-styling in here</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">input</span><span class="nc">.ng-invalid</span><span class="o">,</span> <span class="nt">textarea</span><span class="nc">.ng-invalid</span><span class="o">,</span> <span class="nt">select</span><span class="nc">.ng-invalid</span> <span class="err">&#x7b;</span> <span class="o">//</span> <span class="o">[</span><span class="nt">date-picker</span><span class="o">]</span><span class="nc">.ng-invalid</span> <span class="nt">input</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">//override standard invalid state</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">@include</span><span class="nd"> valid-input</span><span class="err">;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="err">&#x7d;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="err">&#x7d;</span></div></div></pre></div></figure>
+
+<p>Followed by adding back in your error mixins if the <code>cs-errors-form</code> has the <code>reveal-errors</code> class. Adding a little 
+polish by again applying the valid styles if the element is focused.</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="o">[</span><span class="nt">cs-errors-form</span><span class="o">]</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">//place any additional custom input field un-styling in here</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">input</span><span class="nc">.ng-invalid</span><span class="o">,</span> <span class="nt">textarea</span><span class="nc">.ng-invalid</span><span class="o">,</span> <span class="nt">select</span><span class="nc">.ng-invalid</span> <span class="err">&#x7b;</span> <span class="o">//</span> <span class="o">[</span><span class="nt">date-picker</span><span class="o">]</span><span class="nc">.ng-invalid</span> <span class="nt">input</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">//override standard invalid state</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">@include</span><span class="nd"> valid-input</span><span class="err">;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="err">&#x7d;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">&amp;</span><span class="nc">.reveal-errors</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">//place any additional custom input field re-styling in here</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">input</span><span class="nc">.ng-invalid</span><span class="o">,</span> <span class="nt">textarea</span><span class="nc">.ng-invalid</span><span class="o">,</span> <span class="nt">select</span><span class="nc">.ng-invalid</span> <span class="err">&#x7b;</span> <span class="o">//[</span><span class="nt">date-picker</span><span class="o">]</span><span class="nc">.ng-invalid</span> <span class="nt">input</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="c1">//override standard invalid state</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">@include</span><span class="nd"> invalid-input</span><span class="err">;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">&amp;</span><span class="nd">:focus</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">@include</span><span class="nd"> valid-input</span><span class="err">;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="err">&#x7d;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="err">&#x7d;</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="err">&#x7d;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="err">&#x7d;</span></div></div></pre></div></figure>
+
+<p>Finally lets add some styles to our error messages, that will utilize Angualr’s ng-messages directive. And tying it all together
+we have:</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">@mixin</span><span class="nf"> cs-errors-hide-error</span><span class="p">()</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="na">height</span><span class="o">:</span> <span class="mi">0</span><span class="kt">px</span><span class="err">;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="na">margin-top</span><span class="o">:</span> <span class="mi">0</span><span class="kt">px</span><span class="err">;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="na">margin-bottom</span><span class="o">:</span> <span class="mi">0</span><span class="kt">px</span><span class="err">;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="na">opacity</span><span class="o">:</span> <span class="mi">0</span><span class="err">;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="err">&#x7d;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">@mixin</span><span class="nf"> cs-errors-reveal-error</span><span class="p">()</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">$animationLength</span><span class="o">:</span> <span class="mf">.4</span><span class="kt">s</span><span class="err">;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="na">height</span><span class="o">:</span> <span class="mi">20</span><span class="kt">px</span><span class="err">;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="na">margin-top</span><span class="o">:</span> <span class="mi">5</span><span class="kt">px</span><span class="err">;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="na">margin-bottom</span><span class="o">:</span> <span class="mi">10</span><span class="kt">px</span><span class="err">;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="na">opacity</span><span class="o">:</span> <span class="mi">1</span><span class="err">;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">@extend</span> <span class="nc">.cs-animate.slide-and-fade</span><span class="o">;</span> <span class="o">//</span><span class="nt">see</span> <span class="nt">part</span> <span class="nt">3</span> <span class="nt">for</span> <span class="nt">the</span> <span class="nt">animations</span><span class="o">,</span> <span class="nt">or</span> <span class="nt">leave</span> <span class="nt">them</span> <span class="nt">out</span><span class="o">,</span> <span class="nt">up</span> <span class="nt">to</span> <span class="nt">you</span><span class="nc">.</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="err">&#x7d;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="o">[</span><span class="nt">cs-errors-form</span><span class="o">]</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nc">.text-danger</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">@include</span><span class="nd"> cs-errors-hide-error</span><span class="err">;</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="err">&#x7d;</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">//place any additional custom input field un-styling in here</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">input</span><span class="nc">.ng-invalid</span><span class="o">,</span> <span class="nt">textarea</span><span class="nc">.ng-invalid</span><span class="o">,</span> <span class="nt">select</span><span class="nc">.ng-invalid</span> <span class="err">&#x7b;</span> <span class="o">//</span> <span class="o">[</span><span class="nt">date-picker</span><span class="o">]</span><span class="nc">.ng-invalid</span> <span class="nt">input</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">//override standard invalid state</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">@include</span><span class="nd"> valid-input</span><span class="err">;</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="err">&#x7d;</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">&amp;</span><span class="nc">.reveal-errors</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">//place any additional custom input field re-styling in here</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">input</span><span class="nc">.ng-invalid</span><span class="o">,</span> <span class="nt">textarea</span><span class="nc">.ng-invalid</span><span class="o">,</span> <span class="nt">select</span><span class="nc">.ng-invalid</span> <span class="err">&#x7b;</span> <span class="o">//[</span><span class="nt">date-picker</span><span class="o">]</span><span class="nc">.ng-invalid</span> <span class="nt">input</span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="c1">//override standard invalid state</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">@include</span><span class="nd"> invalid-input</span><span class="err">;</span>
+</div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">&amp;</span><span class="nd">:focus</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">@include</span><span class="nd"> valid-input</span><span class="err">;</span>
+</div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="err">&#x7d;</span>
+</div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="err">&#x7d;</span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nc">.text-danger</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="38" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">@include</span><span class="nd"> cs-errors-reveal-error</span><span class="err">;</span>
+</div></div><div data-line="39" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="err">&#x7d;</span>
+</div></div><div data-line="40" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="err">&#x7d;</span>
+</div></div><div data-line="41" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="err">&#x7d;</span></div></div></pre></div></figure>
+
+<p>Let’s see what that would like like in your view. Bellow I’m utilizing ng-messages to show the errors. This
+allows for really clean and consistent error handling.</p>
+
+<p><em>Remember that when installing ng-messages you have to include the script tag, as well as inject the module into your app.</em></p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nt">&lt;form</span> <span class="na">name=</span><span class="s">&quot;userForm&quot;</span> <span class="na">cs-errors-form</span> <span class="na">novalidate</span><span class="nt">&gt;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;form-group&quot;</span><span class="nt">&gt;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span>  <span class="na">name=</span><span class="s">&quot;name&quot;</span> <span class="na">ng-model=</span><span class="s">&quot;user.name&quot;</span> <span class="na">ng-required=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">&lt;div</span> <span class="na">ng-messages=</span><span class="s">&quot;userForm.name.$error&quot;</span><span class="nt">&gt;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;text-danger&quot;</span> <span class="na">ng-message=</span><span class="s">&quot;required&quot;</span><span class="nt">&gt;</span>You forgot your name.<span class="nt">&lt;/p&gt;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">&lt;/div&gt;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">&lt;/div&gt;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;form-group&quot;</span><span class="nt">&gt;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span>  <span class="na">name=</span><span class="s">&quot;name&quot;</span> <span class="na">ng-model=</span><span class="s">&quot;user.number&quot;</span> <span class="na">ng-minlength=</span><span class="s">&quot;7&quot;</span> <span class="na">ng-required=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">&lt;div</span> <span class="na">ng-messages=</span><span class="s">&quot;userForm.name.$error&quot;</span><span class="nt">&gt;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;text-danger&quot;</span> <span class="na">ng-message=</span><span class="s">&quot;required&quot;</span><span class="nt">&gt;</span>You forgot your number.<span class="nt">&lt;/p&gt;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;text-danger&quot;</span> <span class="na">ng-message=</span><span class="s">&quot;minlength&quot;</span><span class="nt">&gt;</span>Your number is too short.<span class="nt">&lt;/p&gt;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">&lt;/div&gt;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">&lt;/div&gt;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">&lt;button</span> <span class="na">cs-errors-submit=</span><span class="s">&quot;userForm&quot;</span> <span class="na">ng-click=</span><span class="s">&quot;save()&quot;</span><span class="nt">&gt;</span>Create User<span class="nt">&lt;/button&gt;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nt">&lt;/form&gt;</span></div></div></pre></div></figure>
+
+<p>At this point we have a working yet admittedly naive error handling. It will provide a good user experience for users that 
+ have forgotten to fill out a field, but for users that have incorrectly filled out a field, they will have to wait till
+ they try to submit it to see an error.</p>
+
+<p>To fix this we will introduce another directive, the <code>cs-errors</code> directive. This will attach a blur event handler to
+ the field as well as apply the <code>reveal-errors</code> class to this element on blur. At this point we should transition to targeting this
+ class for most input specific error styles.</p>
+
+<p>Doing this will give the user instant feedback on invalid fields, but won’t mark the field as invalid until they are
+done trying to enter valid information. It would be annoying to do this on focus because then they would be berated with 
+errors before they were even done.</p>
+
+<p>This directive will be attached to all form-groups (optional, but helps if you are using bootstrap). We’ll start with 
+the directive declaration.</p>
+
+<p>We give it a scope false, because this directive isn’t applying any new elements or any new packaged 
+content that would require a new scope context, it is simply adding additional functionality to what already functions.</p>
+
+<p>I’m using the link function here because we need access the directive element and we are doing mostly dom logic. Also
+we want this to run after the dom has been rendered, as well as to have access to Angular’s formController.</p>
+
+<div data-toggle=""></div>
+<div data-toggle-ts-js="">
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrors directive</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">cs</span><span class="p">.</span><span class="nx">csErrors</span><span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s2">&quot;csErrors&quot;</span><span class="p">,</span> <span class="p">()</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IDirective</span> <span class="o">=&gt;</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">     <span class="k">return</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">       <span class="nx">restrict</span><span class="o">:</span>   <span class="s2">&quot;A&quot;</span><span class="p">,</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">       <span class="nx">scope</span><span class="o">:</span>      <span class="kc">false</span><span class="p">,</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">       <span class="nx">link</span><span class="o">:</span>       <span class="p">(</span><span class="nx">scope</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IScope</span><span class="p">,</span> <span class="nx">elem</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IAugmentedJQuery</span><span class="p">)</span><span class="o">:</span> <span class="nx">Link</span> <span class="o">=&gt;</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">         <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">elem</span><span class="p">.</span><span class="nx">hasClass</span><span class="p">(</span><span class="s2">&quot;form-group&quot;</span><span class="p">))</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">           <span class="k">throw</span> <span class="s2">&quot;errors element does not have the &#39;form-group&#39; class&quot;</span><span class="p">;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">         <span class="p">&#x7d;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">         <span class="k">return</span> <span class="k">new</span> <span class="nx">Link</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">elem</span><span class="p">);</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">       <span class="p">&#x7d;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">     <span class="p">&#x7d;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">   <span class="p">&#x7d;);</span></div></div></pre></div></figure>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrors directive</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">cs</span><span class="p">.</span><span class="nx">csErrors</span><span class="p">.</span><span class="nx">directive</span><span class="p">(</span><span class="s2">&quot;csErrors&quot;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">     <span class="k">return</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">         <span class="nx">restrict</span><span class="o">:</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">         <span class="nx">scope</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">         <span class="nx">link</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">elem</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">             <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">elem</span><span class="p">.</span><span class="nx">hasClass</span><span class="p">(</span><span class="s2">&quot;form-group&quot;</span><span class="p">))</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">                 <span class="k">throw</span> <span class="s2">&quot;errors element does not have the &#39;form-group&#39; class&quot;</span><span class="p">;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">             <span class="p">&#x7d;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">             <span class="k">return</span> <span class="k">new</span> <span class="nx">Link</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">elem</span><span class="p">);</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">         <span class="p">&#x7d;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">     <span class="p">&#x7d;;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line"> <span class="p">&#x7d;);</span></div></div></pre></div></figure>
+
+</div>
+
+<p>This is where I have chosen to store the static variables used in the other directives, at the top we have the 
+<code>REVEAL_ERRORS_CLASS</code> which is the name of the class we need to add to the element when it 
+is time to reveal the errors, as well as the <code>REVEAL_ERRORS_EVENT</code>. We pass the scope and the element to the constructor.</p>
+
+<p>First we want to do a quick check to ensure we have the correct elements in the form-group to work with, so we check for
+an element with a name. This allows this directive to work with any ui component that uses <code>ng-model</code> validation, since we 
+are not limiting it to inputs, with a name we can even just have an inner ng-form.</p>
+
+<p>After that we will set up our on blur handler. If you need to get fancier with your on blur you can pass in a a config object that
+will allow you to select on different elements, which will allow you to use more advanced/custome ui-components (more on this is 
+part 2).</p>
+
+<p>With the scope we listen for <code>REVEAL_ERRORS_EVENT</code> which we will catch after it is emitted from <code>csErrorsForm</code>.</p>
+
+<p>With these two methods of adding a class we cover both uses cases, of a person entering wrong info and then moving on, as well
+as missing the field and attempting to submit the invalid form.</p>
+
+<div data-toggle=""></div>
+<div data-toggle-ts-js="">
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrors's link function</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">module</span> <span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="kr">export</span> <span class="kr">class</span> <span class="nx">Link</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">	  <span class="kr">public</span> <span class="kr">static</span> <span class="nx">REVEAL_ERRORS_EVENT</span><span class="o">:</span> <span class="nx">string</span> <span class="o">=</span> <span class="s2">&quot;RevealErrors:&quot;</span><span class="p">;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">	  <span class="kr">public</span> <span class="kr">static</span> <span class="nx">REVEAL_ERRORS_CLASS</span><span class="o">:</span> <span class="nx">string</span> <span class="o">=</span> <span class="s2">&quot;reveal-errors&quot;</span><span class="p">;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">	  <span class="nx">constructor</span><span class="p">(</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">	    <span class="kr">private</span> <span class="nx">scope</span><span class="o">:</span>          <span class="nx">ng</span><span class="p">.</span><span class="nx">IScope</span><span class="p">,</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">	    <span class="kr">private</span> <span class="nx">element</span><span class="o">:</span>        <span class="nx">ng</span><span class="p">.</span><span class="nx">IAugmentedJQuery</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">	  <span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">	    <span class="kd">var</span> <span class="nx">inputEl</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IAugmentedJQuery</span> <span class="o">=</span> <span class="nx">element</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;[name]&quot;</span><span class="p">);</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">	    <span class="kd">var</span> <span class="nx">inputName</span><span class="o">:</span> <span class="nx">string</span>            <span class="o">=</span> <span class="nx">inputEl</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">);</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">	    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">inputName</span><span class="p">)</span> <span class="p">&#x7b;</span><span class="k">throw</span> <span class="s2">&quot;cs-errors element has no child input elements with a &#39;name&#39; attribute&quot;</span><span class="p">;&#x7d;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">	    <span class="nx">inputEl</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;blur&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">toggleClasses</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">	    <span class="k">this</span><span class="p">.</span><span class="nx">scope</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">toggleClasses</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">	  <span class="p">&#x7d;</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">	  <span class="kr">private</span> <span class="nx">enableErrors</span><span class="p">()</span><span class="o">:</span> <span class="k">void</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">	    <span class="k">this</span><span class="p">.</span><span class="nx">element</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_CLASS</span><span class="p">);</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">	  <span class="p">&#x7d;</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="p">&#x7d;</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrors's link function</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">cs</span> <span class="o">=</span> <span class="nx">cs</span> <span class="o">||</span> <span class="p">&#x7b;&#x7d;;</span> 
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span> <span class="o">=</span> <span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span> <span class="o">||</span> <span class="p">&#x7b;&#x7d;;</span> <span class="c1">//just extra code to export so other directives can use static members</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">function</span> <span class="nx">Link</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">this</span><span class="p">.</span><span class="nx">scope</span> <span class="o">=</span> <span class="nx">scope</span><span class="p">;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">this</span><span class="p">.</span><span class="nx">element</span> <span class="o">=</span> <span class="nx">element</span><span class="p">;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="kd">var</span> <span class="nx">inputEl</span> <span class="o">=</span> <span class="nx">element</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;[name]&quot;</span><span class="p">);</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="kd">var</span> <span class="nx">inputName</span> <span class="o">=</span> <span class="nx">inputEl</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">);</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">inputName</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="k">throw</span> <span class="s2">&quot;cs-errors element has no child input elements with a &#39;name&#39; attribute&quot;</span><span class="p">;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">&#x7d;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">inputEl</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;blur&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">toggleClasses</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">this</span><span class="p">.</span><span class="nx">scope</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">toggleClasses</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">Link</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">enableErrors</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">this</span><span class="p">.</span><span class="nx">element</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_CLASS</span><span class="p">);</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span> <span class="o">=</span> <span class="s2">&quot;RevealErrors:&quot;</span><span class="p">;</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_CLASS</span> <span class="o">=</span> <span class="s2">&quot;reveal-errors&quot;</span><span class="p">;</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="nx">Link</span><span class="p">;</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;)();</span></div></div></pre></div></figure>
+
+</div>
+<p>Now lets update our <code>csErrorsForm</code> link function to communicate the event received from the <code>csErrorsSubmit</code> to all the <code>form-groups</code>
+it contains.</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">scope</span><span class="p">.</span><span class="nx">$broadcast</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span><span class="p">);</span> <span class="c1">//no longer needs form name namespace since broadcasting down to all children</span></div></div></pre></div></figure>
+
+<p>All together we have</p>
+
+<div data-toggle=""></div>
+<div data-toggle-ts-js="">
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrors's link function</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">class</span> <span class="nx">Link</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">constructor</span><span class="p">(</span><span class="nx">scope</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IScope</span><span class="p">,</span> <span class="nx">element</span><span class="o">:</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IAugmentedJQuery</span><span class="p">,</span> <span class="nx">attrs</span><span class="o">:</span> <span class="nx">Attrs</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">element</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">HIDE_ERRORS_CLASS</span><span class="p">);</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">scope</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span> <span class="o">+</span> <span class="nx">attrs</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="p">()</span><span class="o">:</span> <span class="k">void</span> <span class="o">=&gt;</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">scope</span><span class="p">.</span><span class="nx">$broadcast</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span><span class="p">);</span> <span class="c1">//no longer needs form name namespace since broadcasting down to all children</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">element</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_CLASS</span><span class="p">).</span><span class="nx">removeClass</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">HIDE_ERRORS_CLASS</span><span class="p">);</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">if</span> <span class="p">(</span><span class="nx">attrs</span><span class="p">.</span><span class="nx">csErrorsForm</span> <span class="o">===</span> <span class="s2">&quot;no-scroll&quot;</span><span class="p">)</span> <span class="p">&#x7b;</span><span class="k">return</span><span class="p">&#x7d;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="kd">var</span> <span class="nx">firstErroredElement</span><span class="o">:</span> <span class="nx">JQuery</span> <span class="o">=</span> <span class="nx">element</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;.ng-invalid&quot;</span><span class="p">).</span><span class="nx">first</span><span class="p">();</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">if</span> <span class="p">(</span><span class="nx">firstErroredElement</span><span class="p">.</span><span class="nx">length</span> <span class="o">!==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">angular</span><span class="p">.</span><span class="nx">element</span><span class="p">(</span><span class="s1">&#39;html, body&#39;</span><span class="p">).</span><span class="nx">animate</span><span class="p">(&#x7b;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="nx">scrollTop</span><span class="o">:</span> <span class="nx">firstErroredElement</span><span class="p">.</span><span class="nx">offset</span><span class="p">().</span><span class="nx">top</span> <span class="o">-</span> <span class="mi">100</span> <span class="c1">//100 px padding on scroll to top</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">&#x7d;,</span> <span class="mi">600</span><span class="p">);</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="p">&#x7d;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;);</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">interface</span> <span class="nx">Attrs</span> <span class="kr">extends</span> <span class="nx">ng</span><span class="p">.</span><span class="nx">IAttributes</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">name</span><span class="o">:</span> <span class="nx">string</span><span class="p">;</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">csErrorsForm</span><span class="o">?:</span> <span class="nx">string</span><span class="p">;</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrors's link function</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">Link</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">function</span> <span class="nx">Link</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">element</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">HIDE_ERRORS_CLASS</span><span class="p">);</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">scope</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span> <span class="o">+</span> <span class="nx">attrs</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="nx">scope</span><span class="p">.</span><span class="nx">$broadcast</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span><span class="p">);</span> <span class="c1">//no longer needs form name namespace since broadcasting down to all children</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="nx">element</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_CLASS</span><span class="p">).</span><span class="nx">removeClass</span><span class="p">(</span><span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span><span class="p">.</span><span class="nx">Link</span><span class="p">.</span><span class="nx">HIDE_ERRORS_CLASS</span><span class="p">);</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="k">if</span> <span class="p">(</span><span class="nx">attrs</span><span class="p">.</span><span class="nx">csErrorsForm</span> <span class="o">===</span> <span class="s2">&quot;no-scroll&quot;</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">                <span class="k">return</span><span class="p">;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="p">&#x7d;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="kd">var</span> <span class="nx">firstErroredElement</span> <span class="o">=</span> <span class="nx">element</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;.ng-invalid&quot;</span><span class="p">).</span><span class="nx">first</span><span class="p">();</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="k">if</span> <span class="p">(</span><span class="nx">firstErroredElement</span><span class="p">.</span><span class="nx">length</span> <span class="o">!==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">                <span class="nx">angular</span><span class="p">.</span><span class="nx">element</span><span class="p">(</span><span class="s1">&#39;html, body&#39;</span><span class="p">).</span><span class="nx">animate</span><span class="p">(&#x7b;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">                    <span class="nx">scrollTop</span><span class="o">:</span> <span class="nx">firstErroredElement</span><span class="p">.</span><span class="nx">offset</span><span class="p">().</span><span class="nx">top</span> <span class="o">-</span> <span class="mi">100</span> <span class="c1">//100 px padding on scroll to top</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">                <span class="p">&#x7d;,</span> <span class="mi">600</span><span class="p">);</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="p">&#x7d;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">&#x7d;);</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="nx">Link</span><span class="p">;</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;)();</span></div></div></pre></div></figure>
+
+</div>
+<p>And now to update the styles to target the <code>form-groups</code></p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="o">[</span><span class="nt">cs-errors-form</span><span class="o">]</span> <span class="o">[</span><span class="nt">cs-errors</span><span class="o">]</span><span class="nc">.form-group</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nc">.text-danger</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">@include</span><span class="nd"> cs-errors-hide-error</span><span class="err">;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="err">&#x7d;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">//place any additional custom input field un-styling in here</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">input</span><span class="nc">.ng-invalid</span><span class="o">,</span> <span class="nt">textarea</span><span class="nc">.ng-invalid</span><span class="o">,</span> <span class="nt">select</span><span class="nc">.ng-invalid</span> <span class="err">&#x7b;</span> <span class="o">//</span> <span class="o">[</span><span class="nt">date-picker</span><span class="o">]</span><span class="nc">.ng-invalid</span> <span class="nt">input</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">//override standard invalid state</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">@include</span><span class="nd"> valid-input</span><span class="err">;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="err">&#x7d;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">&amp;</span><span class="nc">.reveal-errors</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">//place any additional custom input field re-styling in here</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">input</span><span class="nc">.ng-invalid</span><span class="o">,</span> <span class="nt">textarea</span><span class="nc">.ng-invalid</span><span class="o">,</span> <span class="nt">select</span><span class="nc">.ng-invalid</span> <span class="err">&#x7b;</span> <span class="o">//[</span><span class="nt">date-picker</span><span class="o">]</span><span class="nc">.ng-invalid</span> <span class="nt">input</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="c1">//override standard invalid state</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">@include</span><span class="nd"> invalid-input</span><span class="err">;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">&amp;</span><span class="nd">:focus</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">@include</span><span class="nd"> valid-input</span><span class="err">;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="err">&#x7d;</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="err">&#x7d;</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nc">.text-danger</span> <span class="err">&#x7b;</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">@include</span><span class="nd"> cs-errors-reveal-error</span><span class="err">;</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="err">&#x7d;</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="err">&#x7d;</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="err">&#x7d;</span></div></div></pre></div></figure>
+
+<p>And finally updated html</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nt">&lt;form</span> <span class="na">name=</span><span class="s">&quot;userForm&quot;</span> <span class="na">cs-errors-form</span> <span class="na">novalidate</span><span class="nt">&gt;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;form-group&quot;</span> <span class="na">cs-errors</span><span class="nt">&gt;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span>  <span class="na">name=</span><span class="s">&quot;name&quot;</span> <span class="na">ng-model=</span><span class="s">&quot;user.name&quot;</span> <span class="na">ng-required=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">&lt;div</span> <span class="na">ng-messages=</span><span class="s">&quot;userForm.name.$error&quot;</span><span class="nt">&gt;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;text-danger&quot;</span> <span class="na">ng-message=</span><span class="s">&quot;required&quot;</span><span class="nt">&gt;</span>You forgot your name.<span class="nt">&lt;/p&gt;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">&lt;/div&gt;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">&lt;/div&gt;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;form-group&quot;</span> <span class="na">cs-errors</span><span class="nt">&gt;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span>  <span class="na">name=</span><span class="s">&quot;name&quot;</span> <span class="na">ng-model=</span><span class="s">&quot;user.number&quot;</span> <span class="na">ng-minlength=</span><span class="s">&quot;7&quot;</span> <span class="na">ng-required=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">&lt;div</span> <span class="na">ng-messages=</span><span class="s">&quot;userForm.name.$error&quot;</span><span class="nt">&gt;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;text-danger&quot;</span> <span class="na">ng-message=</span><span class="s">&quot;required&quot;</span><span class="nt">&gt;</span>You forgot your number.<span class="nt">&lt;/p&gt;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;text-danger&quot;</span> <span class="na">ng-message=</span><span class="s">&quot;minlength&quot;</span><span class="nt">&gt;</span>Your number is too short.<span class="nt">&lt;/p&gt;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">&lt;/div&gt;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">&lt;/div&gt;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">&lt;button</span> <span class="na">cs-errors-submit=</span><span class="s">&quot;userForm&quot;</span> <span class="na">ng-click=</span><span class="s">&quot;save()&quot;</span><span class="nt">&gt;</span>Create User<span class="nt">&lt;/button&gt;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nt">&lt;/form&gt;</span></div></div></pre></div></figure>
+
+<p>Here is a working example using my <a href="https://github.com/CodySchaaf/CsAngularErrors">csErrors</a> module which can also be installed
+as a bower plugin with the name cs-angular-errors.</p>
+
+<p data-height="257" data-theme-id="19100" data-slug-hash="qONaJw" data-default-tab="result" data-user="codyschaaf" class="codepen">See the Pen <a href="http://codepen.io/codyschaaf/pen/qONaJw/">CsAngularErrors</a> by Cody Schaaf (<a href="http://codepen.io/codyschaaf">@codyschaaf</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+<script async="" src="//assets.codepen.io/assets/embed/ei.js"></script>
+
+<p>This is enough to get most basic forms up and running, there are a few edge cases that we need to work out in part 2;
+such as when you have a directive that encapsulates a ui component that is used for input. This will not be rendered in time
+to get the form setup. As well as if you have multiple inputs for a single model.</p>
+
+  </article>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = 'codingwithcody';
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <script type="text/javascript">
+    (function() {
+      var hiddenClass = ' toggle-hidden';
+      var dataBlocks = document.querySelectorAll('[data-toggle-TS-JS]');
+      var codeBlocks = [].map.call(dataBlocks, function(el) {
+        var blocks = el.querySelectorAll("figure.code-highlight-figure");
+        blocks[1].className += hiddenClass;
+        return [blocks[0], blocks[1], el];
+      });
+      [].forEach.call(document.querySelectorAll('[data-toggle]'), function(element, index) {
+        element.innerHTML = 'View JS';
+        element.className = 'link';
+        function setHeight(target) {
+          var style = getComputedStyle(target);
+          codeBlocks[index][2].style.height = parseInt(style.marginBottom) + target.clientHeight + "px";
+        }
+        setHeight(codeBlocks[index][0]);
+        element.addEventListener('click', function() {
+          var elTS = codeBlocks[index][0];
+          var elJS = codeBlocks[index][1];
+          if (elTS.classList.contains('toggle-hidden')) {
+            element.innerHTML = 'View JS';
+            elTS.className = elTS.className.replace(hiddenClass, '');
+            elJS.className += hiddenClass;
+            setHeight(elTS);
+          } else {
+            element.innerHTML = 'View TS';
+            elTS.className += hiddenClass;
+            elJS.className = elJS.className.replace(hiddenClass, '');
+            setHeight(elJS);
+          }
+        });
+      });
+    })()
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Coding With Cody</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Coding With Cody</li>
+          <li><a href="mailto:codyjschaaf@gmail.com">codyjschaaf@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/CodySchaaf">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">CodySchaaf</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/TheCodingCody">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">TheCodingCody</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Come learn with me. For comments please file an issue or pull request at https://github.com/CodySchaaf/Blog/issues
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+  </body>
+
+</html>

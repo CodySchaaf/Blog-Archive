@@ -497,6 +497,41 @@ coding.</p>
       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
   </script>
+  <script type="text/javascript">
+    (function() {
+      var hiddenClass = ' toggle-hidden';
+      var dataBlocks = document.querySelectorAll('[data-toggle-TS-JS]');
+      var codeBlocks = [].map.call(dataBlocks, function(el) {
+        var blocks = el.querySelectorAll("figure.code-highlight-figure");
+        blocks[1].className += hiddenClass;
+        return [blocks[0], blocks[1], el];
+      });
+      [].forEach.call(document.querySelectorAll('[data-toggle]'), function(element, index) {
+        element.innerHTML = 'View JS';
+        element.className = 'link';
+        function setHeight(target) {
+          var style = getComputedStyle(target);
+          codeBlocks[index][2].style.height = parseInt(style.marginBottom) + target.clientHeight + "px";
+        }
+        setHeight(codeBlocks[index][0]);
+        element.addEventListener('click', function() {
+          var elTS = codeBlocks[index][0];
+          var elJS = codeBlocks[index][1];
+          if (elTS.classList.contains('toggle-hidden')) {
+            element.innerHTML = 'View JS';
+            elTS.className = elTS.className.replace(hiddenClass, '');
+            elJS.className += hiddenClass;
+            setHeight(elTS);
+          } else {
+            element.innerHTML = 'View TS';
+            elTS.className += hiddenClass;
+            elJS.className = elJS.className.replace(hiddenClass, '');
+            setHeight(elJS);
+          }
+        });
+      });
+    })()
+  </script>
   <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 </div>
 
@@ -551,7 +586,7 @@ coding.</p>
       </div>
 
       <div class="footer-col  footer-col-3">
-        <p class="text">Come learn with me.
+        <p class="text">Come learn with me. For comments please file an issue or pull request at https://github.com/CodySchaaf/Blog/issues
 </p>
       </div>
     </div>
