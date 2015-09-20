@@ -248,6 +248,7 @@
 		position: relative;
 		transition: height .4s ease-in-out;
 		.code-highlight-figure {
+			width: 100%;
 			&.toggle-hidden {
 				opacity: 0;
 			}
@@ -261,5 +262,10 @@
 				}
 			}
 		}
+	}
+
+	em {
+		font-size: 14px;
+		color: gray;
 	}
 }
