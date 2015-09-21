@@ -30,9 +30,9 @@ To start we need a new module, or use your existing app. I have written these in
 
 <div data-toggle></div>
 <div data-toggle-TS-JS>
-```javascript csErrors module setup 
+```ts csErrors module setup
 module cs {
-  export var csErrors: ng.IModule = angular.module("csErrors", []);
+	export var csErrors: ng.IModule = angular.module("csErrors", []);
 }
 ```
 
@@ -66,37 +66,32 @@ could release an attribute with the same name; sort of like angular's ng*
 <div data-toggle></div>
 <div data-toggle-TS-JS>
 
-```javascript csErrorsSubmit directive
-
-  cs.csErrors.directive("csErrorsSubmit", (): ng.IDirective => {
-    return {
-      restrict:   "A",
-      scope:      false,
-      require:    "^form",
-      priority:   -1, //ensure it is run before ng-click with a 0 priority since link functions are run in reverse order
-      link:       (scope: Scope, element: ng.IAugmentedJQuery, attrs: Attr, formCtrl: ng.IFormController): Link => {
-        return new Link(scope, element, attrs, formCtrl);
-      }
-    }
-  });
-  
+```ts csErrorsSubmit directive
+cs.csErrors.directive("csErrorsSubmit", (): ng.IDirective => {
+	return {
+		restrict:   "A",
+		scope:      false,
+		require:    "^form",
+		priority:   -1, //ensure it is run before ng-click with a 0 priority since link functions are run in reverse order
+		link:       (scope: Scope, element: ng.IAugmentedJQuery, attrs: Attr, formCtrl: ng.IFormController): Link => {
+			return new Link(scope, element, attrs, formCtrl);
+		}
+	}
+});
 ```
 
 ```javascript csErrorsSubmit directive
-
-  cs.csErrors.directive("csErrorsSubmit", function () {
-      return {
-          restrict: "A",
-          scope: false,
-          require: "^form",
-          priority: -1,
-          link: function (scope, element, attrs, formCtrl) {
-              return new Link(scope, element, attrs, formCtrl);
-          }
-      };
-  });
-
-  
+cs.csErrors.directive("csErrorsSubmit", function () {
+	return {
+		restrict: "A",
+		scope: false,
+		require: "^form",
+		priority: -1,
+		link: function (scope, element, attrs, formCtrl) {
+			return new Link(scope, element, attrs, formCtrl);
+		}
+	};
+});
 ```
 
 </div>
@@ -115,47 +110,42 @@ This works because of Angular's awesome form handling. As long as you attach the
 <div data-toggle></div>
 <div data-toggle-TS-JS>
 
-```javascript csErrorsSubmit's link function
+```ts csErrorsSubmit's link function
+class Link {
+	constructor(scope: Scope, element: ng.IAugmentedJQuery, attrs: Attr, formCtrl: ng.IFormController) {
+		element.on("click", (event: JQueryEventObject) => {
+			if (formCtrl.$invalid) {
+				scope.$emit(cs.errors.Link.REVEAL_ERRORS_EVENT + formCtrl.$name);
+				event.preventDefault();
+				event.stopImmediatePropagation();
+			}
+		})
+	}
+}
 
-  class Link {
-    constructor(scope: Scope, element: ng.IAugmentedJQuery, attrs: Attr, formCtrl: ng.IFormController) {
-      element.on("click", (event: JQueryEventObject) => {
-        if (formCtrl.$invalid) {
-          scope.$emit(cs.errors.Link.REVEAL_ERRORS_EVENT + formCtrl.$name);
-          event.preventDefault();
-          event.stopImmediatePropagation();
-        }
-      })
-    }
-  }
-  
-  interface Attr extends ng.IAttributes {
-    errorsSubmit: string;
-  }
+interface Attr extends ng.IAttributes {
+	errorsSubmit: string;
+}
 
-  interface Scope extends ng.IScope {
-    formCtrl: FormCtrl;
-    attrs:    Attr;
-  }
-
+interface Scope extends ng.IScope {
+	formCtrl: FormCtrl;
+	attrs:    Attr;
+}
 ```
 
 ```javascript csErrorsSubmit's link function
-
-  var Link = (function () {
-      function Link(scope, element, attrs, formCtrl) {
-          element.on("click", function (event) {
-              if (formCtrl.$invalid) {
-                  scope.$emit(cs.errors.Link.REVEAL_ERRORS_EVENT + formCtrl.$name);
-                  event.preventDefault();
-                  event.stopImmediatePropagation();
-              }
-          });
-      }
-      return Link;
-  })();
-
-
+var Link = (function () {
+	function Link(scope, element, attrs, formCtrl) {
+		element.on("click", function (event) {
+			if (formCtrl.$invalid) {
+				scope.$emit(cs.errors.Link.REVEAL_ERRORS_EVENT + formCtrl.$name);
+				event.preventDefault();
+				event.stopImmediatePropagation();
+			}
+		});
+	}
+	return Link;
+})();
 ```
 </div>
 
@@ -168,53 +158,48 @@ This leaves us with:
 
 <div data-toggle></div>
 <div data-toggle-TS-JS>
-```javascript csErrorsSubmit's link function
+```ts csErrorsSubmit's link function
+class Link {
+	constructor(scope: Scope, element: ng.IAugmentedJQuery, attrs: Attr, formCtrl: ng.IFormController) {
+		element.on("click", (event: JQueryEventObject) => {
+			if (attrs.errorsSubmit !== formCtrl.$name) {
+				throw "Provided name (" + attrs.errorsSubmit + ") of form does not match:" + formCtrl.$name;
+			}
+			if (formCtrl.$invalid) {
+				scope.$emit(cs.errors.Link.REVEAL_ERRORS_EVENT + formCtrl.$name);
+				event.preventDefault();
+				event.stopImmediatePropagation();
+			}
+		})
+	}
+}
 
-  class Link {
-      constructor(scope: Scope, element: ng.IAugmentedJQuery, attrs: Attr, formCtrl: ng.IFormController) {
-        element.on("click", (event: JQueryEventObject) => {
-          if (attrs.errorsSubmit !== formCtrl.$name) {
-            throw "Provided name (" + attrs.errorsSubmit + ") of form does not match:" + formCtrl.$name;
-          }
-          if (formCtrl.$invalid) {
-            scope.$emit(cs.errors.Link.REVEAL_ERRORS_EVENT + formCtrl.$name);
-            event.preventDefault();
-            event.stopImmediatePropagation();
-          }
-        })
-      }
-    }
-  
-    interface Attr extends ng.IAttributes {
-      errorsSubmit: string;
-    }
-  
-    interface Scope extends ng.IScope {
-      formCtrl: FormCtrl;
-      attrs:    Attr;
-    }
+interface Attr extends ng.IAttributes {
+	errorsSubmit: string;
+}
 
+interface Scope extends ng.IScope {
+	formCtrl: FormCtrl;
+	attrs:    Attr;
+}
 ```
 
 ```javascript csErrorsSubmit's link function
-
- var Link = (function () {
-     function Link(scope, element, attrs, formCtrl) {
-         element.on("click", function (event) {
-             if (attrs.errorsSubmit !== formCtrl.$name) {
-                 throw "Provided name (" + attrs.errorsSubmit + ") of form does not match:" + formCtrl.$name;
-             }
-             if (formCtrl.$invalid) {
-                 scope.$emit(cs.errors.Link.REVEAL_ERRORS_EVENT + formCtrl.$name);
-                 event.preventDefault();
-                 event.stopImmediatePropagation();
-             }
-         });
-     }
-     return Link;
- })();
-
-
+var Link = (function () {
+	function Link(scope, element, attrs, formCtrl) {
+		element.on("click", function (event) {
+			if (attrs.errorsSubmit !== formCtrl.$name) {
+				throw "Provided name (" + attrs.errorsSubmit + ") of form does not match:" + formCtrl.$name;
+			}
+			if (formCtrl.$invalid) {
+				scope.$emit(cs.errors.Link.REVEAL_ERRORS_EVENT + formCtrl.$name);
+				event.preventDefault();
+				event.stopImmediatePropagation();
+			}
+		});
+	}
+	return Link;
+})();
 ```
 </div>
 Once this directive emits its event we will need something to catch it, in comes `csErrorsForm`.
@@ -224,32 +209,27 @@ We will start with the directive definition, with just a scope false and link fu
 <div data-toggle></div>
 <div data-toggle-TS-JS>
 
-```javascript csErrorsForm directive
-
-  cs.csErrors.directive("csErrorsForm", (): ng.IDirective => {
-    return {
-      restrict: "A",
-      scope:    false,
-      link:     (scope: ng.IScope, element: ng.IAugmentedJQuery, attrs: Attrs): Link => {
-        return new Link(scope, element, attrs);
-      }
-    }
-  });
-
+```ts csErrorsForm directive
+cs.csErrors.directive("csErrorsForm", (): ng.IDirective => {
+	return {
+		restrict: "A",
+		scope:    false,
+		link:     (scope: ng.IScope, element: ng.IAugmentedJQuery, attrs: Attrs): Link => {
+			return new Link(scope, element, attrs);
+		}
+	}
+});
 ```
 ```javascript csErrorsForm directive
-
-  cs.csErrors.directive("csErrorsForm", function () {
-      return {
-          restrict: "A",
-          scope: false,
-          link: function (scope, element, attrs) {
-              return new Link(scope, element, attrs);
-          }
-      };
-  });
-
-
+cs.csErrors.directive("csErrorsForm", function () {
+	return {
+		restrict: "A",
+		scope: false,
+		link: function (scope, element, attrs) {
+			return new Link(scope, element, attrs);
+		}
+	};
+});
 ```
 
 </div>
@@ -265,29 +245,27 @@ not you want the directive to scroll to fields that are invalid.
 <div data-toggle></div>
 <div data-toggle-TS-JS>
 
-```javascript csErrorsForm's link function
-
-
+```ts csErrorsForm's link function
 class Link {
-  constructor(scope: ng.IScope, element: ng.IAugmentedJQuery, attrs: Attrs) {
-    element.addClass(cs.cs.errors.Link.HIDE_ERRORS_CLASS);
-    scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name, (): void => {
-      element.addClass(cs.errors.Link.REVEAL_ERRORS_CLASS).removeClass(cs.errors.Link.HIDE_ERRORS_CLASS);
-      if (attrs.csErrorsForm === "no-scroll") {return}
+	constructor(scope: ng.IScope, element: ng.IAugmentedJQuery, attrs: Attrs) {
+		element.addClass(cs.cs.errors.Link.HIDE_ERRORS_CLASS);
+		scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name, (): void => {
+			element.addClass(cs.errors.Link.REVEAL_ERRORS_CLASS).removeClass(cs.errors.Link.HIDE_ERRORS_CLASS);
+			if (attrs.csErrorsForm === "no-scroll") {return}
 
-      var firstErroredElement: JQuery = element.find(".ng-invalid").first();
-      if (firstErroredElement.length !== 0) {
-        angular.element('html, body').animate({
-          scrollTop: firstErroredElement.offset().top - 100 //100 px padding on scroll to top
-        }, 600);
-      }
-    });
-  }
+			var firstErroredElement: JQuery = element.find(".ng-invalid").first();
+			if (firstErroredElement.length !== 0) {
+				angular.element('html, body').animate({
+					scrollTop: firstErroredElement.offset().top - 100 //100 px padding on scroll to top
+				}, 600);
+			}
+		});
+	}
 }
 
 interface Attrs extends ng.IAttributes {
-  name: string;
-  csErrorsForm?: string;
+	name: string;
+	csErrorsForm?: string;
 }
   
 ```
@@ -295,24 +273,23 @@ interface Attrs extends ng.IAttributes {
 ```javascript csErrorsForm's link function
 
 var Link = (function () {
-    function Link(scope, element, attrs) {
-        element.addClass(cs.errors.Link.HIDE_ERRORS_CLASS);
-        scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name, function () {
-            element.addClass(cs.errors.Link.REVEAL_ERRORS_CLASS).removeClass(cs.errors.Link.HIDE_ERRORS_CLASS);
-            if (attrs.csErrorsForm === "no-scroll") {
-                return;
-            }
-            var firstErroredElement = element.find(".ng-invalid").first();
-            if (firstErroredElement.length !== 0) {
-                angular.element('html, body').animate({
-                    scrollTop: firstErroredElement.offset().top - 100 //100 px padding on scroll to top
-                }, 600);
-            }
-        });
-    }
-    return Link;
+	function Link(scope, element, attrs) {
+		element.addClass(cs.errors.Link.HIDE_ERRORS_CLASS);
+		scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name, function () {
+			element.addClass(cs.errors.Link.REVEAL_ERRORS_CLASS).removeClass(cs.errors.Link.HIDE_ERRORS_CLASS);
+			if (attrs.csErrorsForm === "no-scroll") {
+				return;
+			}
+			var firstErroredElement = element.find(".ng-invalid").first();
+			if (firstErroredElement.length !== 0) {
+				angular.element('html, body').animate({
+					scrollTop: firstErroredElement.offset().top - 100 //100 px padding on scroll to top
+				}, 600);
+			}
+		});
+	}
+	return Link;
 })();
-
   
 ```
 </div>
@@ -340,9 +317,8 @@ Now for the styling. The first thing you will want to apply your non-error state
 Most Angular apps will have invalid styles applied to their ui components by targeting the `ng-invalid` class.
   
 ```css 
-
 input.ng-invalid {
-  border-color: red;
+	border-color: red;
 }
 ```
 
@@ -357,11 +333,11 @@ date picker for example.
 ```sass 
 
 [cs-errors-form] {
-  //place any additional custom input field un-styling in here
-  input.ng-invalid, textarea.ng-invalid, select.ng-invalid { // [date-picker].ng-invalid input
-    //override standard invalid state
-    @include valid-input;
-  }
+	//place any additional custom input field un-styling in here
+	input.ng-invalid, textarea.ng-invalid, select.ng-invalid { // [date-picker].ng-invalid input
+		//override standard invalid state
+		@include valid-input;
+	}
 }
 ```
 
@@ -371,22 +347,22 @@ polish by again applying the valid styles if the element is focused.
 ```sass
 
 [cs-errors-form] {
-  //place any additional custom input field un-styling in here
-  input.ng-invalid, textarea.ng-invalid, select.ng-invalid { // [date-picker].ng-invalid input
-    //override standard invalid state
-    @include valid-input;
-  }
+	//place any additional custom input field un-styling in here
+	input.ng-invalid, textarea.ng-invalid, select.ng-invalid { // [date-picker].ng-invalid input
+		//override standard invalid state
+		@include valid-input;
+	}
 
-  &.reveal-errors {
-    //place any additional custom input field re-styling in here
-    input.ng-invalid, textarea.ng-invalid, select.ng-invalid { //[date-picker].ng-invalid input
-      //override standard invalid state
-      @include invalid-input;
-      &:focus {
-        @include valid-input;
-      }
-    }
-  }
+	&.reveal-errors {
+		//place any additional custom input field re-styling in here
+		input.ng-invalid, textarea.ng-invalid, select.ng-invalid { //[date-picker].ng-invalid input
+			//override standard invalid state
+			@include invalid-input;
+			&:focus {
+				@include valid-input;
+			}
+		}
+	}
 }
 ```
 
@@ -395,47 +371,46 @@ we have:
 
 ```sass 
 @mixin cs-errors-hide-error() {
-  height: 0px;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  opacity: 0;
+	height: 0px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	opacity: 0;
 }
 
 @mixin cs-errors-reveal-error() {
-  $animationLength: .4s;
-  height: 20px;
-  margin-top: 5px;
-  margin-bottom: 10px;
-  opacity: 1;
-  @extend .cs-animate.slide-and-fade; //see part 3 for the animations, or leave them out, up to you.
+	$animationLength: .4s;
+	height: 20px;
+	margin-top: 5px;
+	margin-bottom: 10px;
+	opacity: 1;
+	@extend .cs-animate.slide-and-fade; //see part 3 for the animations, or leave them out, up to you.
 }
 
 [cs-errors-form] {
-  .text-danger {
-    @include cs-errors-hide-error;
-  }
-  //place any additional custom input field un-styling in here
-  input.ng-invalid, textarea.ng-invalid, select.ng-invalid { // [date-picker].ng-invalid input
-    //override standard invalid state
-    @include valid-input;
-  }
+	.text-danger {
+		@include cs-errors-hide-error;
+	}
+	//place any additional custom input field un-styling in here
+	input.ng-invalid, textarea.ng-invalid, select.ng-invalid { // [date-picker].ng-invalid input
+		//override standard invalid state
+		@include valid-input;
+	}
 
-  &.reveal-errors {
-    //place any additional custom input field re-styling in here
-    input.ng-invalid, textarea.ng-invalid, select.ng-invalid { //[date-picker].ng-invalid input
-      //override standard invalid state
-      @include invalid-input;
-      &:focus {
-        @include valid-input;
-      }
-    }
+	&.reveal-errors {
+		//place any additional custom input field re-styling in here
+		input.ng-invalid, textarea.ng-invalid, select.ng-invalid { //[date-picker].ng-invalid input
+			//override standard invalid state
+			@include invalid-input;
+			&:focus {
+				@include valid-input;
+			}
+		}
 
-    .text-danger {
-      @include cs-errors-reveal-error;
-    }
-  }
+		.text-danger {
+			@include cs-errors-reveal-error;
+		}
+	}
 }
-
 ```
 
 Let's see what that would like like in your view. Bellow I'm utilizing ng-messages to show the errors. This
@@ -445,22 +420,22 @@ allows for really clean and consistent error handling.
 
 ```html
 <form name="userForm" cs-errors-form novalidate>
-  <div class="form-group">
-    <input type="text"  name="name" ng-model="user.name" ng-required="true"/>
-    <div ng-messages="userForm.name.$error">
-      <p class="text-danger" ng-message="required">You forgot your name.</p>
-    </div>
-  </div>
+	<div class="form-group">
+		<input type="text"  name="name" ng-model="user.name" ng-required="true"/>
+		<div ng-messages="userForm.name.$error">
+			<p class="text-danger" ng-message="required">You forgot your name.</p>
+		</div>
+	</div>
 
-  <div class="form-group">
-    <input type="text"  name="name" ng-model="user.number" ng-minlength="7" ng-required="true"/>
-    <div ng-messages="userForm.name.$error">
-      <p class="text-danger" ng-message="required">You forgot your number.</p>
-      <p class="text-danger" ng-message="minlength">Your number is too short.</p>
-    </div>
-  </div>
+	<div class="form-group">
+		<input type="text"  name="name" ng-model="user.number" ng-minlength="7" ng-required="true"/>
+		<div ng-messages="userForm.name.$error">
+			<p class="text-danger" ng-message="required">You forgot your number.</p>
+			<p class="text-danger" ng-message="minlength">Your number is too short.</p>
+		</div>
+	</div>
 
-  <button cs-errors-submit="userForm" ng-click="save()">Create User</button>
+	<button cs-errors-submit="userForm" ng-click="save()">Create User</button>
 </form>
 
 ```
@@ -488,33 +463,33 @@ we want this to run after the dom has been rendered, as well as to have access t
 
 <div data-toggle></div>
 <div data-toggle-TS-JS>
-```javascript csErrors directive
- cs.csErrors.directive("csErrors", (): ng.IDirective => {
-     return {
-       restrict:   "A",
-       scope:      false,
-       link:       (scope: ng.IScope, elem: ng.IAugmentedJQuery): Link => {
-         if (!elem.hasClass("form-group")) {
-           throw "errors element does not have the 'form-group' class";
-         }
-         return new Link(scope, elem);
-       }
-     }
-   });
+```ts csErrors directive
+cs.csErrors.directive("csErrors", (): ng.IDirective => {
+	return {
+		restrict:   "A",
+		scope:      false,
+		link:       (scope: ng.IScope, elem: ng.IAugmentedJQuery): Link => {
+			if (!elem.hasClass("form-group")) {
+				throw "errors element does not have the 'form-group' class";
+			}
+			return new Link(scope, elem);
+		}
+	}
+});
 ```
 ```javascript csErrors directive
- cs.csErrors.directive("csErrors", function () {
-     return {
-         restrict: "A",
-         scope: false,
-         link: function (scope, elem) {
-             if (!elem.hasClass("form-group")) {
-                 throw "errors element does not have the 'form-group' class";
-             }
-             return new Link(scope, elem);
-         }
-     };
- });
+cs.csErrors.directive("csErrors", function () {
+	return {
+		restrict: "A",
+		scope: false,
+		link: function (scope, elem) {
+			if (!elem.hasClass("form-group")) {
+				throw "errors element does not have the 'form-group' class";
+			}
+			return new Link(scope, elem);
+		}
+	};
+});
 
 ```
 </div>
@@ -538,54 +513,53 @@ as missing the field and attempting to submit the invalid form.
 
 <div data-toggle></div>
 <div data-toggle-TS-JS>
-```javascript csErrors's link function
-
+```ts csErrors's link function
 module cs.errors {
 	export class Link {
-	  public static REVEAL_ERRORS_EVENT: string = "RevealErrors:";
-	  public static REVEAL_ERRORS_CLASS: string = "reveal-errors";
-	
-	  constructor(
-	    private scope:          ng.IScope,
-	    private element:        ng.IAugmentedJQuery
-	  ) {
-	    var inputEl: ng.IAugmentedJQuery = element.find("[name]");
-	    var inputName: string            = inputEl.attr("name");
-	    if (!inputName) {throw "cs-errors element has no child input elements with a 'name' attribute";}
-	
-	    inputEl.on("blur", this.toggleClasses.bind(this));
-	    this.scope.$on(Link.REVEAL_ERRORS_EVENT, this.toggleClasses.bind(this));
-	  }
-	
-	  private enableErrors(): void {
-	    this.element.addClass(Link.REVEAL_ERRORS_CLASS);
-	  }
+		public static REVEAL_ERRORS_EVENT: string = "RevealErrors:";
+		public static REVEAL_ERRORS_CLASS: string = "reveal-errors";
+
+		constructor(
+			private scope:          ng.IScope,
+			private element:        ng.IAugmentedJQuery
+		) {
+			var inputEl: ng.IAugmentedJQuery = element.find("[name]");
+			var inputName: string            = inputEl.attr("name");
+			if (!inputName) {throw "cs-errors element has no child input elements with a 'name' attribute";}
+
+			inputEl.on("blur", this.toggleClasses.bind(this));
+			this.scope.$on(Link.REVEAL_ERRORS_EVENT, this.toggleClasses.bind(this));
+		}
+
+		private enableErrors(): void {
+			this.element.addClass(Link.REVEAL_ERRORS_CLASS);
+		}
 	}
 }
 
 ```
 ```javascript csErrors's link function
 
-var cs = cs || {}; 
+var cs = cs || {};
 var cs.errors = cs.errors || {}; //just extra code to export so other directives can use static members
 cs.errors.Link = (function () {
-    function Link(scope, element) {
-        this.scope = scope;
-        this.element = element;
-        var inputEl = element.find("[name]");
-        var inputName = inputEl.attr("name");
-        if (!inputName) {
-            throw "cs-errors element has no child input elements with a 'name' attribute";
-        }
-        inputEl.on("blur", this.toggleClasses.bind(this));
-        this.scope.$on(Link.REVEAL_ERRORS_EVENT, this.toggleClasses.bind(this));
-    }
-    Link.prototype.enableErrors = function () {
-        this.element.addClass(Link.REVEAL_ERRORS_CLASS);
-    };
-    Link.REVEAL_ERRORS_EVENT = "RevealErrors:";
-    Link.REVEAL_ERRORS_CLASS = "reveal-errors";
-    return Link;
+	function Link(scope, element) {
+		this.scope = scope;
+		this.element = element;
+		var inputEl = element.find("[name]");
+		var inputName = inputEl.attr("name");
+		if (!inputName) {
+			throw "cs-errors element has no child input elements with a 'name' attribute";
+		}
+		inputEl.on("blur", this.toggleClasses.bind(this));
+		this.scope.$on(Link.REVEAL_ERRORS_EVENT, this.toggleClasses.bind(this));
+	}
+	Link.prototype.enableErrors = function () {
+		this.element.addClass(Link.REVEAL_ERRORS_CLASS);
+	};
+	Link.REVEAL_ERRORS_EVENT = "RevealErrors:";
+	Link.REVEAL_ERRORS_CLASS = "reveal-errors";
+	return Link;
 })();
 
 ```
@@ -601,54 +575,53 @@ All together we have
 
 <div data-toggle></div>
 <div data-toggle-TS-JS>
-```javascript csErrors's link function
+```ts csErrors's link function
 
 class Link {
-  constructor(scope: ng.IScope, element: ng.IAugmentedJQuery, attrs: Attrs) {
-    element.addClass(cs.errors.Link.HIDE_ERRORS_CLASS);
-    scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name, (): void => {
-      scope.$broadcast(cs.errors.Link.REVEAL_ERRORS_EVENT); //no longer needs form name namespace since broadcasting down to all children
-      element.addClass(cs.errors.Link.REVEAL_ERRORS_CLASS).removeClass(cs.errors.Link.HIDE_ERRORS_CLASS);
-      if (attrs.csErrorsForm === "no-scroll") {return}
+	constructor(scope: ng.IScope, element: ng.IAugmentedJQuery, attrs: Attrs) {
+		element.addClass(cs.errors.Link.HIDE_ERRORS_CLASS);
+		scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name, (): void => {
+			scope.$broadcast(cs.errors.Link.REVEAL_ERRORS_EVENT); //no longer needs form name namespace since broadcasting down to all children
+			element.addClass(cs.errors.Link.REVEAL_ERRORS_CLASS).removeClass(cs.errors.Link.HIDE_ERRORS_CLASS);
+			if (attrs.csErrorsForm === "no-scroll") {return}
 
-      var firstErroredElement: JQuery = element.find(".ng-invalid").first();
-      if (firstErroredElement.length !== 0) {
-        angular.element('html, body').animate({
-          scrollTop: firstErroredElement.offset().top - 100 //100 px padding on scroll to top
-        }, 600);
-      }
-    });
-  }
+			var firstErroredElement: JQuery = element.find(".ng-invalid").first();
+			if (firstErroredElement.length !== 0) {
+				angular.element('html, body').animate({
+					scrollTop: firstErroredElement.offset().top - 100 //100 px padding on scroll to top
+				}, 600);
+			}
+		});
+	}
 }
 
 interface Attrs extends ng.IAttributes {
-  name: string;
-  csErrorsForm?: string;
+	name: string;
+	csErrorsForm?: string;
 }
 
 ```
 ```javascript csErrors's link function
 
 var Link = (function () {
-    function Link(scope, element, attrs) {
-        element.addClass(cs.errors.Link.HIDE_ERRORS_CLASS);
-        scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name, function () {
-            scope.$broadcast(cs.errors.Link.REVEAL_ERRORS_EVENT); //no longer needs form name namespace since broadcasting down to all children
-            element.addClass(cs.errors.Link.REVEAL_ERRORS_CLASS).removeClass(cs.errors.Link.HIDE_ERRORS_CLASS);
-            if (attrs.csErrorsForm === "no-scroll") {
-                return;
-            }
-            var firstErroredElement = element.find(".ng-invalid").first();
-            if (firstErroredElement.length !== 0) {
-                angular.element('html, body').animate({
-                    scrollTop: firstErroredElement.offset().top - 100 //100 px padding on scroll to top
-                }, 600);
-            }
-        });
-    }
-    return Link;
+	function Link(scope, element, attrs) {
+		element.addClass(cs.errors.Link.HIDE_ERRORS_CLASS);
+		scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name, function () {
+			scope.$broadcast(cs.errors.Link.REVEAL_ERRORS_EVENT); //no longer needs form name namespace since broadcasting down to all children
+			element.addClass(cs.errors.Link.REVEAL_ERRORS_CLASS).removeClass(cs.errors.Link.HIDE_ERRORS_CLASS);
+			if (attrs.csErrorsForm === "no-scroll") {
+				return;
+			}
+			var firstErroredElement = element.find(".ng-invalid").first();
+			if (firstErroredElement.length !== 0) {
+				angular.element('html, body').animate({
+					scrollTop: firstErroredElement.offset().top - 100 //100 px padding on scroll to top
+				}, 600);
+			}
+		});
+	}
+	return Link;
 })();
-
 
 ```
 </div>
@@ -657,29 +630,29 @@ And now to update the styles to target the `form-groups`
 ```sass 
 
 [cs-errors-form] [cs-errors].form-group {
-  .text-danger {
-    @include cs-errors-hide-error;
-  }
-  //place any additional custom input field un-styling in here
-  input.ng-invalid, textarea.ng-invalid, select.ng-invalid { // [date-picker].ng-invalid input
-    //override standard invalid state
-    @include valid-input;
-  }
+	.text-danger {
+		@include cs-errors-hide-error;
+	}
+	//place any additional custom input field un-styling in here
+	input.ng-invalid, textarea.ng-invalid, select.ng-invalid { // [date-picker].ng-invalid input
+		//override standard invalid state
+		@include valid-input;
+	}
 
-  &.reveal-errors {
-    //place any additional custom input field re-styling in here
-    input.ng-invalid, textarea.ng-invalid, select.ng-invalid { //[date-picker].ng-invalid input
-      //override standard invalid state
-      @include invalid-input;
-      &:focus {
-        @include valid-input;
-      }
-    }
+	&.reveal-errors {
+		//place any additional custom input field re-styling in here
+		input.ng-invalid, textarea.ng-invalid, select.ng-invalid { //[date-picker].ng-invalid input
+			//override standard invalid state
+			@include invalid-input;
+			&:focus {
+				@include valid-input;
+			}
+		}
 
-    .text-danger {
-      @include cs-errors-reveal-error;
-    }
-  }
+		.text-danger {
+			@include cs-errors-reveal-error;
+		}
+	}
 }
 ```
 
@@ -687,22 +660,22 @@ And finally updated html
 
 ```html
 <form name="userForm" cs-errors-form novalidate>
-  <div class="form-group" cs-errors>
-    <input type="text"  name="name" ng-model="user.name" ng-required="true"/>
-    <div ng-messages="userForm.name.$error">
-      <p class="text-danger" ng-message="required">You forgot your name.</p>
-    </div>
-  </div>
+	<div class="form-group" cs-errors>
+		<input type="text"  name="name" ng-model="user.name" ng-required="true"/>
+		<div ng-messages="userForm.name.$error">
+			<p class="text-danger" ng-message="required">You forgot your name.</p>
+		</div>
+	</div>
 
-  <div class="form-group" cs-errors>
-    <input type="text"  name="name" ng-model="user.number" ng-minlength="7" ng-required="true"/>
-    <div ng-messages="userForm.name.$error">
-      <p class="text-danger" ng-message="required">You forgot your number.</p>
-      <p class="text-danger" ng-message="minlength">Your number is too short.</p>
-    </div>
-  </div>
+	<div class="form-group" cs-errors>
+		<input type="text"  name="name" ng-model="user.number" ng-minlength="7" ng-required="true"/>
+		<div ng-messages="userForm.name.$error">
+			<p class="text-danger" ng-message="required">You forgot your number.</p>
+			<p class="text-danger" ng-message="minlength">Your number is too short.</p>
+		</div>
+	</div>
 
-  <button cs-errors-submit="userForm" ng-click="save()">Create User</button>
+	<button cs-errors-submit="userForm" ng-click="save()">Create User</button>
 </form>
 
 ```
