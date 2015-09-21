@@ -7,26 +7,29 @@ categories:
 ---
 
 One of the most frustrating UX pitfalls, one which people new to Angular often utilize, is disabling buttons
- to show that a form is not yet valid (ng-disabled). A user that is looking for the input button probably thinks they have finished
- entering their details, but a disabled button leaves them stuck. A better solution is an interactive form, that
- highlights errors when a user attempts to advance when the form is invalid.
+to show that a form is not yet valid (ng-disabled). A user that is looking for the input button probably thinks they have finished
+entering their details, but a disabled button leaves them stuck. A better solution is an interactive form, that
+highlights errors when a user attempts to advance when the form is invalid.
  
-To solve this I have created 3 core directives which will be placed throughout to allow for a much better user experience. 
+To solve this I have created 3 core directives which will be placed throughout a form to allow for a much better user experience.
+ 
+To start we will implement a simpler version with the first two directives, then add the third one in after. 
 
-In angular each form element (or ng-form attribute) will create a new formController. This controller can be leveraged
-to determine the validity of the form. The 3 directives will be an `errorsSubmit` directive, an `errorsForm` directive, as well as
-just an `errors` directive. The way they will work is that all errors will be hidden from a user regardless of the forms
-current validity state. Once the user is done submitting their information they will hit the submit button which will
-have the errorsSubmit directive on it. This directive will ensure that the form is valid before submitting. If the form is 
-invalid it will block the submit/click action of the button, and then signal the errorsForm directive that an invalid submit 
-was triggered. Then the errorsForm directive will apply the reveal-errors class to the form, as well as find the first 
+In angular each form element (or ng-form attribute) will create a new formController. This controller--stored on the scope
+under the form's name--can be leveraged to determine the validity of the form. The 3 directives will be `csErrorsSubmit`, 
+`csErrorsForm`, and `csErrors`. The way they will work is that all errors will start 
+hidden from the user, regardless of the forms current validity state. Once the user is done submitting their 
+information they will hit the submit button which will have the `csErrorsSubmit` directive on it. 
+This directive will ensure that the form is valid before submitting. If the form is 
+invalid it will block the ng-submit/ng-click action of the button, and then signal the `csErrorsForm` directive that an invalid submission 
+was triggered. Then the `csErrorsForm` directive will apply the `reveal-errors` class to the form, as well as find the first 
 invalid input field and scroll to that position. With the new class applied we will have the error revealed for the user to fix.
-The errors directive will allow for greater fine tuning as well as house the communication data. 
+The `csErrors` directive will allow for greater fine tuning as well as house the communication data (class names and event names). 
 
-  
 To start we need a new module, or use your existing app. I have written these in typescript for legibility, but
- you can view their javascript equivalents at their corresponding codepens.
-  
+you can view their javascript equivalents by using the toggle. I definitely recommend learning TypeScript though, as
+it makes writing and maintaining large apps much easier. 
+
 
 <div data-toggle></div>
 <div data-toggle-TS-JS>
@@ -41,27 +44,26 @@ module cs {
 var cs = cs || {};
 cs.csErrors = angular.module("csErrors", []);
 
-
 ```
 </div>
 
-Then we will setup the first directive, the `errorsSubmit` directive will have the following directive deceleration.
+#csErrorsSubmit
 
-We give it a scope false, because this directive isn't applying any new elements or any new packaged 
+Let's setup the first directive's definition.
+
+We give the `csErrorsSubmit` directive a scope false, because this directive isn't applying any new elements or any new packaged 
 content that would require a new scope context, it is simply adding additional functionality to what already functions.
-It requires the form from the current scope for validity checks. 
+It will also need access to the form, require the form using `^form` to have access to the current scope's form for validity checks. 
 
 It needs a priority of -1 to ensure that the link function is run before the link function of ng-click and ng-submit which both
 have the default priority of 0. We use -1 because although the controller functions are run according to their priority, the
 link function is run in reverse order of priority. Since the click event is added in the link function for ng-click, we will
-do the same. 
-
-Finally we use the link function because it is taboo to inject the element into the controller, as well as we are doing mostly
-dom work. 
+do the same. We also want to use the link function because it is taboo to inject the element into the controller, as well as we are doing mostly
+DOM work. 
 
 *You'll notice I'm prefixing my directives with cs (CodySchaaf) since errors is a bit common, this will prevent any 
 clashes with future angular version that might release a directive with the same name, or future html standards that 
-could release an attribute with the same name; sort of like angular's ng*
+could release an attribute with the same name; sort of like Angular's ng*
 
 <div data-toggle></div>
 <div data-toggle-TS-JS>
@@ -102,10 +104,9 @@ to the form because we could have these setups nested and we want to ensure that
 of broadcast because the submit button will be nested inside the form and emit propagates up the scope. 
 
 This works because of Angular's awesome form handling. As long as you attach the appropriate ng-modal validating directives
- to your inputs, this will be able to tell if the form is valid. This is because a form is only valid if all of the children
- ng-models are valid. So by adding ng-required to all fields, the form will only be valid if all fields are answered and thus
- this will only submit if all fields are answered.
-
+to your inputs, this will be able to tell if the form is valid. This is because a form is only valid if all of the children
+ng-models are valid. So--for example--by adding ng-required to all fields, the form will only be valid if all fields are answered and thus
+this will only submit if all fields are answered.
   
 <div data-toggle></div>
 <div data-toggle-TS-JS>
@@ -149,12 +150,11 @@ var Link = (function () {
 ```
 </div>
 
-Additionally we can bake in some protection by checking that this button corrispondes with the enteded target. We will
+Additionally we can bake in some protection by checking that this button corresponds with the intended target form. We will
 require that users of the directive pass in the name of the intended form. Then we check it against the name of the form
-that require found `errors-submit='form-name'`
+that require found `errors-submit='form-name'`.
 
 This leaves us with:
-
 
 <div data-toggle></div>
 <div data-toggle-TS-JS>
@@ -202,6 +202,9 @@ var Link = (function () {
 })();
 ```
 </div>
+
+#csErrorsForm
+
 Once this directive emits its event we will need something to catch it, in comes `csErrorsForm`.
 
 We will start with the directive definition, with just a scope false and link function:
