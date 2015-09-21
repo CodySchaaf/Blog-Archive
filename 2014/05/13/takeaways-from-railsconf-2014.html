@@ -507,7 +507,7 @@ coding.</p>
         return [blocks[0], blocks[1], el];
       });
       [].forEach.call(document.querySelectorAll('[data-toggle]'), function(element, index) {
-        element.innerHTML = 'View JS';
+        element.innerHTML = 'View JavaScript';
         element.className = 'link';
         function setHeight(target) {
           var style = getComputedStyle(target);
@@ -518,12 +518,12 @@ coding.</p>
           var elTS = codeBlocks[index][0];
           var elJS = codeBlocks[index][1];
           if (elTS.classList.contains('toggle-hidden')) {
-            element.innerHTML = 'View JS';
+            element.innerHTML = 'View JavaScript';
             elTS.className = elTS.className.replace(hiddenClass, '');
             elJS.className += hiddenClass;
             setHeight(elTS);
           } else {
-            element.innerHTML = 'View TS';
+            element.innerHTML = 'View TypeScript';
             elTS.className += hiddenClass;
             elJS.className = elJS.className.replace(hiddenClass, '');
             setHeight(elJS);
