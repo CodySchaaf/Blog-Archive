@@ -6,31 +6,35 @@
 </description>
     <link>http://codyschaaf.com/</link>
     <atom:link href="http://codyschaaf.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 20 Sep 2015 22:58:07 -0700</pubDate>
-    <lastBuildDate>Sun, 20 Sep 2015 22:58:07 -0700</lastBuildDate>
+    <pubDate>Mon, 21 Sep 2015 00:02:02 -0700</pubDate>
+    <lastBuildDate>Mon, 21 Sep 2015 00:02:02 -0700</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
     
       <item>
         <title>Angular Form Errors</title>
         <description>&lt;p&gt;One of the most frustrating UX pitfalls, one which people new to Angular often utilize, is disabling buttons
- to show that a form is not yet valid (ng-disabled). A user that is looking for the input button probably thinks they have finished
- entering their details, but a disabled button leaves them stuck. A better solution is an interactive form, that
- highlights errors when a user attempts to advance when the form is invalid.&lt;/p&gt;
+to show that a form is not yet valid (ng-disabled). A user that is looking for the input button probably thinks they have finished
+entering their details, but a disabled button leaves them stuck. A better solution is an interactive form, that
+highlights errors when a user attempts to advance when the form is invalid.&lt;/p&gt;
 
-&lt;p&gt;To solve this I have created 3 core directives which will be placed throughout to allow for a much better user experience.&lt;/p&gt;
+&lt;p&gt;To solve this I have created 3 core directives which will be placed throughout a form to allow for a much better user experience.&lt;/p&gt;
 
-&lt;p&gt;In angular each form element (or ng-form attribute) will create a new formController. This controller can be leveraged
-to determine the validity of the form. The 3 directives will be an &lt;code&gt;errorsSubmit&lt;/code&gt; directive, an &lt;code&gt;errorsForm&lt;/code&gt; directive, as well as
-just an &lt;code&gt;errors&lt;/code&gt; directive. The way they will work is that all errors will be hidden from a user regardless of the forms
-current validity state. Once the user is done submitting their information they will hit the submit button which will
-have the errorsSubmit directive on it. This directive will ensure that the form is valid before submitting. If the form is 
-invalid it will block the submit/click action of the button, and then signal the errorsForm directive that an invalid submit 
-was triggered. Then the errorsForm directive will apply the reveal-errors class to the form, as well as find the first 
+&lt;p&gt;To start we will implement a simpler version with the first two directives, then add the third one in after.&lt;/p&gt;
+
+&lt;p&gt;In angular each form element (or ng-form attribute) will create a new formController. This controller–stored on the scope
+under the form’s name–can be leveraged to determine the validity of the form. The 3 directives will be &lt;code&gt;csErrorsSubmit&lt;/code&gt;, 
+&lt;code&gt;csErrorsForm&lt;/code&gt;, and &lt;code&gt;csErrors&lt;/code&gt;. The way they will work is that all errors will start 
+hidden from the user, regardless of the forms current validity state. Once the user is done submitting their 
+information they will hit the submit button which will have the &lt;code&gt;csErrorsSubmit&lt;/code&gt; directive on it. 
+This directive will ensure that the form is valid before submitting. If the form is 
+invalid it will block the ng-submit/ng-click action of the button, and then signal the &lt;code&gt;csErrorsForm&lt;/code&gt; directive that an invalid submission 
+was triggered. Then the &lt;code&gt;csErrorsForm&lt;/code&gt; directive will apply the &lt;code&gt;reveal-errors&lt;/code&gt; class to the form, as well as find the first 
 invalid input field and scroll to that position. With the new class applied we will have the error revealed for the user to fix.
-The errors directive will allow for greater fine tuning as well as house the communication data.&lt;/p&gt;
+The &lt;code&gt;csErrors&lt;/code&gt; directive will allow for greater fine tuning as well as house the communication data (class names and event names).&lt;/p&gt;
 
 &lt;p&gt;To start we need a new module, or use your existing app. I have written these in typescript for legibility, but
- you can view their javascript equivalents at their corresponding codepens.&lt;/p&gt;
+you can view their javascript equivalents by using the toggle. I definitely recommend learning TypeScript though, as
+it makes writing and maintaining large apps much easier.&lt;/p&gt;
 
 &lt;div data-toggle=&quot;&quot;&gt;&lt;/div&gt;
 &lt;div data-toggle-ts-js=&quot;&quot;&gt;
@@ -45,23 +49,23 @@ The errors directive will allow for greater fine tuning as well as house the com
 
 &lt;/div&gt;
 
-&lt;p&gt;Then we will setup the first directive, the &lt;code&gt;errorsSubmit&lt;/code&gt; directive will have the following directive deceleration.&lt;/p&gt;
+&lt;h1 id=&quot;cserrorssubmit&quot;&gt;csErrorsSubmit&lt;/h1&gt;
 
-&lt;p&gt;We give it a scope false, because this directive isn’t applying any new elements or any new packaged 
+&lt;p&gt;Let’s setup the first directive’s definition.&lt;/p&gt;
+
+&lt;p&gt;We give the &lt;code&gt;csErrorsSubmit&lt;/code&gt; directive a scope false, because this directive isn’t applying any new elements or any new packaged 
 content that would require a new scope context, it is simply adding additional functionality to what already functions.
-It requires the form from the current scope for validity checks.&lt;/p&gt;
+It will also need access to the form, require the form using &lt;code&gt;^form&lt;/code&gt; to have access to the current scope’s form for validity checks.&lt;/p&gt;
 
 &lt;p&gt;It needs a priority of -1 to ensure that the link function is run before the link function of ng-click and ng-submit which both
 have the default priority of 0. We use -1 because although the controller functions are run according to their priority, the
 link function is run in reverse order of priority. Since the click event is added in the link function for ng-click, we will
-do the same.&lt;/p&gt;
-
-&lt;p&gt;Finally we use the link function because it is taboo to inject the element into the controller, as well as we are doing mostly
-dom work.&lt;/p&gt;
+do the same. We also want to use the link function because it is taboo to inject the element into the controller, as well as we are doing mostly
+DOM work.&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;You’ll notice I’m prefixing my directives with cs (CodySchaaf) since errors is a bit common, this will prevent any 
 clashes with future angular version that might release a directive with the same name, or future html standards that 
-could release an attribute with the same name; sort of like angular’s ng&lt;/em&gt;&lt;/p&gt;
+could release an attribute with the same name; sort of like Angular’s ng&lt;/em&gt;&lt;/p&gt;
 
 &lt;div data-toggle=&quot;&quot;&gt;&lt;/div&gt;
 &lt;div data-toggle-ts-js=&quot;&quot;&gt;
@@ -100,9 +104,9 @@ to the form because we could have these setups nested and we want to ensure that
 of broadcast because the submit button will be nested inside the form and emit propagates up the scope.&lt;/p&gt;
 
 &lt;p&gt;This works because of Angular’s awesome form handling. As long as you attach the appropriate ng-modal validating directives
- to your inputs, this will be able to tell if the form is valid. This is because a form is only valid if all of the children
- ng-models are valid. So by adding ng-required to all fields, the form will only be valid if all fields are answered and thus
- this will only submit if all fields are answered.&lt;/p&gt;
+to your inputs, this will be able to tell if the form is valid. This is because a form is only valid if all of the children
+ng-models are valid. So–for example–by adding ng-required to all fields, the form will only be valid if all fields are answered and thus
+this will only submit if all fields are answered.&lt;/p&gt;
 
 &lt;div data-toggle=&quot;&quot;&gt;&lt;/div&gt;
 &lt;div data-toggle-ts-js=&quot;&quot;&gt;
@@ -142,9 +146,9 @@ of broadcast because the submit button will be nested inside the form and emit p
 
 &lt;/div&gt;
 
-&lt;p&gt;Additionally we can bake in some protection by checking that this button corrispondes with the enteded target. We will
+&lt;p&gt;Additionally we can bake in some protection by checking that this button corresponds with the intended target form. We will
 require that users of the directive pass in the name of the intended form. Then we check it against the name of the form
-that require found &lt;code&gt;errors-submit=&#39;form-name&#39;&lt;/code&gt;&lt;/p&gt;
+that require found &lt;code&gt;errors-submit=&#39;form-name&#39;&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;This leaves us with:&lt;/p&gt;
 
@@ -190,6 +194,9 @@ that require found &lt;code&gt;errors-submit=&#39;form-name&#39;&lt;/code&gt;&lt
 &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;15&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;p&quot;&gt;&amp;#x7d;)();&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
 
 &lt;/div&gt;
+
+&lt;h1 id=&quot;cserrorsform&quot;&gt;csErrorsForm&lt;/h1&gt;
+
 &lt;p&gt;Once this directive emits its event we will need something to catch it, in comes &lt;code&gt;csErrorsForm&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;We will start with the directive definition, with just a scope false and link function:&lt;/p&gt;
