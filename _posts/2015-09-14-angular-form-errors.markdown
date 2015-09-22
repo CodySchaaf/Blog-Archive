@@ -209,6 +209,13 @@ Once this directive emits its event we will need something to catch it, in comes
 
 We will start with the directive definition, with just a scope false and link function:
 
+For the implementation of the link function, we need access to the scope, the element, and the element's attributes.
+ 
+The element is needed to add and remove the error classes. It will add a hide errors class on initialization, and then 
+remove that class, as well as add a reveal errors class once it receives the event from the `csErrorsSubmit` directive.
+This even will be listened to by the scope, with a scope.$on, and finally the attributes to get the form name and whether or 
+not you want the directive to scroll to fields that are invalid.
+
 <div data-toggle></div>
 <div data-toggle-TS-JS>
 
@@ -237,13 +244,24 @@ cs.csErrors.directive("csErrorsForm", function () {
 
 </div>
 
-For the implementation of the link function, we need access to the scope, the element, and the element's attributes.
- 
-The element is needed to add and remove the error classes. It will add a hide errors class on initialization, and then 
-remove that class, as well as add a reveal errors class once it receives the event from the `csErrorsSubmit` directive.
-This even will be listened to by the scope, with a scope.$on, and finally the attributes to get the form name and whether or 
-not you want the directive to scroll to fields that are invalid.
+First thing we do during initialization is add the `HIDE_ERRORS_CLASS`, this will allow you to target the form
+with pre-validation specific css. 
 
+Next we listen for the `REVEAL_ERRORS_EVENT` that was emitted by `csErrorsSubmit` with `scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name...`
+You can see here that we are adding the form name to the event name to ensure that the message is intended for this form. 
+This is to allow form nesting, you could also accomplish this by stopping the propagation, but I think this is more precise.
+The form name is pulled in from the form or ng-form element that this directive is placed on, since all forms should have a name attribute. 
+
+Once we received this event we will add and remove the `REVEAL_ERRORS_CLASS` and `HIDE_ERRORS_CLASS` respectively. This will allow 
+your css to apply errors for the invalid fields based on the form's current class coupled with Angular's invalid classes on inputs with
+`ng-model`.
+
+Finally we will want to determine if the implementation wants us to scroll, specified by omitting the no-scroll string 
+to the directive instance `<div cs-errors-form>` instead of `<div cs-errors-form='no-scroll'>`. If no-scroll is passed in we just return,
+otherwise we search for the first instance of an elements with the ng-invalid class `element.find(".ng-invalid").first()`. If we find one
+we use the baked in jquery scroll animation to scroll to it. 
+
+*Tip: us no scroll for small forms like login where scrolling would be more distracting than helpful*
 
 <div data-toggle></div>
 <div data-toggle-TS-JS>
@@ -258,7 +276,7 @@ class Link {
 
 			var firstErroredElement: JQuery = element.find(".ng-invalid").first();
 			if (firstErroredElement.length !== 0) {
-				angular.element('html, body').animate({
+				angular.element('html, body').animate({ //animate the scroll to the invalid input
 					scrollTop: firstErroredElement.offset().top - 100 //100 px padding on scroll to top
 				}, 600);
 			}
@@ -297,26 +315,7 @@ var Link = (function () {
 ```
 </div>
 
-First thing we do during initialization is add the `HIDE_ERRORS_CLASS`, this will allow you to target the form
-with pre-validation specific css. 
-
-Next we listen for the `REVEAL_ERRORS_EVENT` that was emitted by `csErrorsSubmit` with `scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name...`
-You can see here that we are adding the form name to the event name to ensure that the message is intended for this form. 
-This is to allow for nesting of this implementation, you could also accomplish this by stopping the propagation, but I think this is more precise.
-The form name is pulled in from the form or ng-form element that this directive is placed on, since all forms should have a name attribute. 
-
-Once we received this event we will add remove the `REVEAL_ERRORS_CLASS` and `HIDE_ERRORS_CLASS` respectively. This will allow 
-your css to apply errors for the invalid fields based on the form's class as well as Angular's invalid classes on inputs with
-`ng-model`.
-
-Finally we will want to determine if the implementation wants us to scroll, specified by omitting the no-scroll string 
-to the directive instance `<div cs-errors-form>` instead of `<div cs-errors-form='no-scroll'>`. If no-scroll is passed in we just return,
-otherwise we search for the first instance of an elements with the ng-invalid class `element.find(".ng-invalid").first()`. If we find one
-we use the baked in jquery scroll animation to scroll to it. 
-
-*Tip: us no scroll for small forms like login where scrolling would be more distracting than helpful*
-
-Now for the styling. The first thing you will want to apply your non-error states to elements with the `ng-invalid` class.
+Now for the styling. The first thing you will want to apply your non-error state styles to elements with the `ng-invalid` class.
 Most Angular apps will have invalid styles applied to their ui components by targeting the `ng-invalid` class.
   
 ```css 
@@ -325,10 +324,11 @@ input.ng-invalid {
 }
 ```
 
-The first thing you will want to do is remove this styling if the element is located inside the `cs-errors-form` directive.
+Undo this styling if the element is located inside the `cs-errors-form` directive.
 This will allow the input element to appear valid even if the user has failed to enter a valid input yet. Allowing the form
 to look pristine even if the user has yet to interact with it. There is also the ability to target ng-pristine, but that leaves
- you helpless when a user has left a field pristine and is trying to submit the form.
+you helpless when a user has left a field pristine and is trying to submit the form. Ng-pristine is also clumsy and not super 
+cross browser friendly (I'm looking at you IE).
  
 As the comment suggests this is also where you could add custom directives that utilize ng-model validations, like a
 date picker for example.
@@ -369,7 +369,7 @@ polish by again applying the valid styles if the element is focused.
 }
 ```
 
-Finally lets add some styles to our error messages, that will utilize Angualr's ng-messages directive. And tying it all together
+Finally lets add some styles to our error messages, that will utilize Angualr's `ng-messages` directive. And tying it all together
 we have:
 
 ```sass 
@@ -419,20 +419,20 @@ we have:
 Let's see what that would like like in your view. Bellow I'm utilizing ng-messages to show the errors. This
 allows for really clean and consistent error handling. 
 
-*Remember that when installing ng-messages you have to include the script tag, as well as inject the module into your app.*
+*Remember that when installing ng-messages you have to include the new script tag, as well as inject the module into your app.*
 
 ```html
 <form name="userForm" cs-errors-form novalidate>
 	<div class="form-group">
-		<input type="text"  name="name" ng-model="user.name" ng-required="true"/>
+		<input type="text"  name="name" ng-model="user.name" ng-required="true" placeholder="name"/>
 		<div ng-messages="userForm.name.$error">
 			<p class="text-danger" ng-message="required">You forgot your name.</p>
 		</div>
 	</div>
 
 	<div class="form-group">
-		<input type="text"  name="name" ng-model="user.number" ng-minlength="7" ng-required="true"/>
-		<div ng-messages="userForm.name.$error">
+		<input type="text"  name="number" ng-model="user.number" ng-minlength="7" ng-required="true" placeholder="number"/>
+		<div ng-messages="userForm.number.$error">
 			<p class="text-danger" ng-message="required">You forgot your number.</p>
 			<p class="text-danger" ng-message="minlength">Your number is too short.</p>
 		</div>
@@ -444,25 +444,25 @@ allows for really clean and consistent error handling.
 ```
  
 At this point we have a working yet admittedly naive error handling. It will provide a good user experience for users that 
- have forgotten to fill out a field, but for users that have incorrectly filled out a field, they will have to wait till
- they try to submit it to see an error. 
+have forgotten to fill out a field, but for users that have incorrectly filled out a field, they will have to wait till
+they try to submit it to see an error. 
  
- To fix this we will introduce another directive, the `cs-errors` directive. This will attach a blur event handler to
- the field as well as apply the `reveal-errors` class to this element on blur. At this point we should transition to targeting this
- class for most input specific error styles. 
+To fix this we will introduce another directive, the `cs-errors` directive. This will attach a blur event handler to
+the field as well as apply the `reveal-errors` class to this element on blur. At this point we should transition to targeting this
+class for most input specific error styles. 
  
 Doing this will give the user instant feedback on invalid fields, but won't mark the field as invalid until they are
 done trying to enter valid information. It would be annoying to do this on focus because then they would be berated with 
-errors before they were even done. 
+errors before they were done. 
 
-This directive will be attached to all form-groups (optional, but helps if you are using bootstrap). We'll start with 
+This directive will be attached to all form-groups (optional to add the class, but helps if you are using bootstrap). We'll start with 
 the directive declaration. 
  
 We give it a scope false, because this directive isn't applying any new elements or any new packaged 
-content that would require a new scope context, it is simply adding additional functionality to what already functions. 
+content that would require a new scope context, it is simply adding additional functionality to what already exists. 
  
-I'm using the link function here because we need access the directive element and we are doing mostly dom logic. Also
-we want this to run after the dom has been rendered, as well as to have access to Angular's formController. 
+I'm using the link function here because we need access to the directive element and we are doing mostly DOM logic. Also
+we want this to run after the DOM has been rendered, as well as to have access to Angular's formController. 
 
 <div data-toggle></div>
 <div data-toggle-TS-JS>
@@ -503,8 +503,8 @@ is time to reveal the errors, as well as the `REVEAL_ERRORS_EVENT`. We pass the 
 
 First we want to do a quick check to ensure we have the correct elements in the form-group to work with, so we check for
 an element with a name. This allows this directive to work with any ui component that uses `ng-model` validation, since we 
-are not limiting it to inputs, with a name we can even just have an inner ng-form. 
-  
+are not limiting it to inputs, with a name we can even just have an inner ng-form that monitors the directives validity. 
+
 After that we will set up our on blur handler. If you need to get fancier with your on blur you can pass in a a config object that
 will allow you to select on different elements, which will allow you to use more advanced/custome ui-components (more on this is 
 part 2).
@@ -521,6 +521,7 @@ module cs.errors {
 	export class Link {
 		public static REVEAL_ERRORS_EVENT: string = "RevealErrors:";
 		public static REVEAL_ERRORS_CLASS: string = "reveal-errors";
+		public static HIDE_ERRORS_CLASS:   string = "hide-errors";
 
 		constructor(
 			private scope:          ng.IScope,
@@ -562,6 +563,7 @@ cs.errors.Link = (function () {
 	};
 	Link.REVEAL_ERRORS_EVENT = "RevealErrors:";
 	Link.REVEAL_ERRORS_CLASS = "reveal-errors";
+	Link.HIDE_ERRORS_CLASS   = "hide-errors";
 	return Link;
 })();
 
@@ -691,4 +693,6 @@ as a bower plugin with the name cs-angular-errors.
 
 This is enough to get most basic forms up and running, there are a few edge cases that we need to work out in part 2;
 such as when you have a directive that encapsulates a ui component that is used for input. This will not be rendered in time
-to get the form setup. As well as if you have multiple inputs for a single model. 
+to get the form setup. As well as if you have multiple inputs for a single model (like seperate first and last name fields).
+
+And finally check back for part 3 where I will go over the animations.
