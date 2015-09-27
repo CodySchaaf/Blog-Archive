@@ -4,6 +4,7 @@ title: About
 permalink: /about/
 ---
 
+{% img pull-right /images/me.jpg 200 200 %}
 Hi! 
 My name is Cody Schaaf. 
 I’m a web developer, game maker, and technology enthusiast.  

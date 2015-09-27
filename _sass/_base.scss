@@ -209,3 +209,21 @@ pre {
         }
     }
 }
+
+.pull-left {
+    float: left;
+}
+
+img.pull-left {
+	margin-right: 20px;
+	margin-bottom: 20px;
+}
+
+.pull-right {
+    float: right;
+}
+
+img.pull-right {
+	margin-left: 20px;
+	margin-bottom: 20px;
+}
