@@ -249,6 +249,13 @@ that require found <code>errors-submit='form-name'</code>.</p>
 
 <p>We will start with the directive definition, with just a scope false and link function:</p>
 
+<p>For the implementation of the link function, we need access to the scope, the element, and the element’s attributes.</p>
+
+<p>The element is needed to add and remove the error classes. It will add a hide errors class on initialization, and then 
+remove that class, as well as add a reveal errors class once it receives the event from the <code>csErrorsSubmit</code> directive.
+This even will be listened to by the scope, with a scope.$on, and finally the attributes to get the form name and whether or 
+not you want the directive to scroll to fields that are invalid.</p>
+
 <div data-toggle=""></div>
 <div data-toggle-ts-js="">
 
@@ -275,12 +282,24 @@ that require found <code>errors-submit='form-name'</code>.</p>
 
 </div>
 
-<p>For the implementation of the link function, we need access to the scope, the element, and the element’s attributes.</p>
+<p>First thing we do during initialization is add the <code>HIDE_ERRORS_CLASS</code>, this will allow you to target the form
+with pre-validation specific css.</p>
 
-<p>The element is needed to add and remove the error classes. It will add a hide errors class on initialization, and then 
-remove that class, as well as add a reveal errors class once it receives the event from the <code>csErrorsSubmit</code> directive.
-This even will be listened to by the scope, with a scope.$on, and finally the attributes to get the form name and whether or 
-not you want the directive to scroll to fields that are invalid.</p>
+<p>Next we listen for the <code>REVEAL_ERRORS_EVENT</code> that was emitted by <code>csErrorsSubmit</code> with <code>scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name...</code>
+You can see here that we are adding the form name to the event name to ensure that the message is intended for this form. 
+This is to allow form nesting, you could also accomplish this by stopping the propagation, but I think this is more precise.
+The form name is pulled in from the form or ng-form element that this directive is placed on, since all forms should have a name attribute.</p>
+
+<p>Once we received this event we will add and remove the <code>REVEAL_ERRORS_CLASS</code> and <code>HIDE_ERRORS_CLASS</code> respectively. This will allow 
+your css to apply errors for the invalid fields based on the form’s current class coupled with Angular’s invalid classes on inputs with
+<code>ng-model</code>.</p>
+
+<p>Finally we will want to determine if the implementation wants us to scroll, specified by omitting the no-scroll string 
+to the directive instance <code>&lt;div cs-errors-form&gt;</code> instead of <code>&lt;div cs-errors-form='no-scroll'&gt;</code>. If no-scroll is passed in we just return,
+otherwise we search for the first instance of an elements with the ng-invalid class <code>element.find(".ng-invalid").first()</code>. If we find one
+we use the baked in jquery scroll animation to scroll to it.</p>
+
+<p><em>Tip: us no scroll for small forms like login where scrolling would be more distracting than helpful</em></p>
 
 <div data-toggle=""></div>
 <div data-toggle-ts-js="">
@@ -293,7 +312,7 @@ not you want the directive to scroll to fields that are invalid.</p>
 </div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="k">if</span> <span class="p">(</span><span class="nx">attrs</span><span class="p">.</span><span class="nx">csErrorsForm</span> <span class="o">===</span> <span class="s2">&quot;no-scroll&quot;</span><span class="p">)</span> <span class="p">&#x7b;</span><span class="k">return</span><span class="p">&#x7d;</span>
 </div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="kd">var</span> <span class="nx">firstErroredElement</span>: <span class="kt">JQuery</span> <span class="o">=</span> <span class="nx">element</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;.ng-invalid&quot;</span><span class="p">).</span><span class="nx">first</span><span class="p">();</span>
 </div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="k">if</span> <span class="p">(</span><span class="nx">firstErroredElement</span><span class="p">.</span><span class="nx">length</span> <span class="o">!==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">&#x7b;</span>
-</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">				<span class="nx">angular</span><span class="p">.</span><span class="nx">element</span><span class="p">(</span><span class="s1">&#39;html, body&#39;</span><span class="p">).</span><span class="nx">animate</span><span class="p">(&#x7b;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">				<span class="nx">angular</span><span class="p">.</span><span class="nx">element</span><span class="p">(</span><span class="s1">&#39;html, body&#39;</span><span class="p">).</span><span class="nx">animate</span><span class="p">(&#x7b;</span> <span class="c1">//animate the scroll to the invalid input</span>
 </div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">					<span class="nx">scrollTop</span>: <span class="kt">firstErroredElement.offset</span><span class="p">().</span><span class="nx">top</span> <span class="o">-</span> <span class="mi">100</span> <span class="c1">//100 px padding on scroll to top</span>
 </div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">				<span class="p">&#x7d;,</span> <span class="mi">600</span><span class="p">);</span>
 </div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="p">&#x7d;</span>
@@ -327,36 +346,18 @@ not you want the directive to scroll to fields that are invalid.</p>
 
 </div>
 
-<p>First thing we do during initialization is add the <code>HIDE_ERRORS_CLASS</code>, this will allow you to target the form
-with pre-validation specific css.</p>
-
-<p>Next we listen for the <code>REVEAL_ERRORS_EVENT</code> that was emitted by <code>csErrorsSubmit</code> with <code>scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name...</code>
-You can see here that we are adding the form name to the event name to ensure that the message is intended for this form. 
-This is to allow for nesting of this implementation, you could also accomplish this by stopping the propagation, but I think this is more precise.
-The form name is pulled in from the form or ng-form element that this directive is placed on, since all forms should have a name attribute.</p>
-
-<p>Once we received this event we will add remove the <code>REVEAL_ERRORS_CLASS</code> and <code>HIDE_ERRORS_CLASS</code> respectively. This will allow 
-your css to apply errors for the invalid fields based on the form’s class as well as Angular’s invalid classes on inputs with
-<code>ng-model</code>.</p>
-
-<p>Finally we will want to determine if the implementation wants us to scroll, specified by omitting the no-scroll string 
-to the directive instance <code>&lt;div cs-errors-form&gt;</code> instead of <code>&lt;div cs-errors-form='no-scroll'&gt;</code>. If no-scroll is passed in we just return,
-otherwise we search for the first instance of an elements with the ng-invalid class <code>element.find(".ng-invalid").first()</code>. If we find one
-we use the baked in jquery scroll animation to scroll to it.</p>
-
-<p><em>Tip: us no scroll for small forms like login where scrolling would be more distracting than helpful</em></p>
-
-<p>Now for the styling. The first thing you will want to apply your non-error states to elements with the <code>ng-invalid</code> class.
+<p>Now for the styling. The first thing you will want to apply your non-error state styles to elements with the <code>ng-invalid</code> class.
 Most Angular apps will have invalid styles applied to their ui components by targeting the <code>ng-invalid</code> class.</p>
 
 <figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nt">input</span><span class="nc">.ng-invalid</span> <span class="p">&#x7b;</span>
 </div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="k">border-color</span><span class="o">:</span> <span class="nb">red</span><span class="p">;</span>
 </div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
 
-<p>The first thing you will want to do is remove this styling if the element is located inside the <code>cs-errors-form</code> directive.
+<p>Undo this styling if the element is located inside the <code>cs-errors-form</code> directive.
 This will allow the input element to appear valid even if the user has failed to enter a valid input yet. Allowing the form
 to look pristine even if the user has yet to interact with it. There is also the ability to target ng-pristine, but that leaves
- you helpless when a user has left a field pristine and is trying to submit the form.</p>
+you helpless when a user has left a field pristine and is trying to submit the form. Ng-pristine is also clumsy and not super 
+cross browser friendly (I’m looking at you IE).</p>
 
 <p>As the comment suggests this is also where you could add custom directives that utilize ng-model validations, like a
 date picker for example.</p>
@@ -390,7 +391,7 @@ polish by again applying the valid styles if the element is focused.</p>
 </div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="err">&#x7d;</span>
 </div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="err">&#x7d;</span></div></div></pre></div></figure>
 
-<p>Finally lets add some styles to our error messages, that will utilize Angualr’s ng-messages directive. And tying it all together
+<p>Finally lets add some styles to our error messages, that will utilize Angualr’s <code>ng-messages</code> directive. And tying it all together
 we have:</p>
 
 <figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">@mixin</span><span class="nf"> cs-errors-hide-error</span><span class="p">()</span> <span class="err">&#x7b;</span>
@@ -434,18 +435,18 @@ we have:</p>
 <p>Let’s see what that would like like in your view. Bellow I’m utilizing ng-messages to show the errors. This
 allows for really clean and consistent error handling.</p>
 
-<p><em>Remember that when installing ng-messages you have to include the script tag, as well as inject the module into your app.</em></p>
+<p><em>Remember that when installing ng-messages you have to include the new script tag, as well as inject the module into your app.</em></p>
 
 <figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nt">&lt;form</span> <span class="na">name=</span><span class="s">&quot;userForm&quot;</span> <span class="na">cs-errors-form</span> <span class="na">novalidate</span><span class="nt">&gt;</span>
 </div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;form-group&quot;</span><span class="nt">&gt;</span>
-</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span>  <span class="na">name=</span><span class="s">&quot;name&quot;</span> <span class="na">ng-model=</span><span class="s">&quot;user.name&quot;</span> <span class="na">ng-required=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span>  <span class="na">name=</span><span class="s">&quot;name&quot;</span> <span class="na">ng-model=</span><span class="s">&quot;user.name&quot;</span> <span class="na">ng-required=</span><span class="s">&quot;true&quot;</span> <span class="na">placeholder=</span><span class="s">&quot;name&quot;</span><span class="nt">/&gt;</span>
 </div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="nt">&lt;div</span> <span class="na">ng-messages=</span><span class="s">&quot;userForm.name.$error&quot;</span><span class="nt">&gt;</span>
 </div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;text-danger&quot;</span> <span class="na">ng-message=</span><span class="s">&quot;required&quot;</span><span class="nt">&gt;</span>You forgot your name.<span class="nt">&lt;/p&gt;</span>
 </div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="nt">&lt;/div&gt;</span>
 </div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nt">&lt;/div&gt;</span>
 </div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;form-group&quot;</span><span class="nt">&gt;</span>
-</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span>  <span class="na">name=</span><span class="s">&quot;name&quot;</span> <span class="na">ng-model=</span><span class="s">&quot;user.number&quot;</span> <span class="na">ng-minlength=</span><span class="s">&quot;7&quot;</span> <span class="na">ng-required=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
-</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="nt">&lt;div</span> <span class="na">ng-messages=</span><span class="s">&quot;userForm.name.$error&quot;</span><span class="nt">&gt;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span>  <span class="na">name=</span><span class="s">&quot;number&quot;</span> <span class="na">ng-model=</span><span class="s">&quot;user.number&quot;</span> <span class="na">ng-minlength=</span><span class="s">&quot;7&quot;</span> <span class="na">ng-required=</span><span class="s">&quot;true&quot;</span> <span class="na">placeholder=</span><span class="s">&quot;number&quot;</span><span class="nt">/&gt;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="nt">&lt;div</span> <span class="na">ng-messages=</span><span class="s">&quot;userForm.number.$error&quot;</span><span class="nt">&gt;</span>
 </div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;text-danger&quot;</span> <span class="na">ng-message=</span><span class="s">&quot;required&quot;</span><span class="nt">&gt;</span>You forgot your number.<span class="nt">&lt;/p&gt;</span>
 </div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">&quot;text-danger&quot;</span> <span class="na">ng-message=</span><span class="s">&quot;minlength&quot;</span><span class="nt">&gt;</span>Your number is too short.<span class="nt">&lt;/p&gt;</span>
 </div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="nt">&lt;/div&gt;</span>
@@ -454,25 +455,25 @@ allows for really clean and consistent error handling.</p>
 </div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nt">&lt;/form&gt;</span></div></div></pre></div></figure>
 
 <p>At this point we have a working yet admittedly naive error handling. It will provide a good user experience for users that 
- have forgotten to fill out a field, but for users that have incorrectly filled out a field, they will have to wait till
- they try to submit it to see an error.</p>
+have forgotten to fill out a field, but for users that have incorrectly filled out a field, they will have to wait till
+they try to submit it to see an error.</p>
 
 <p>To fix this we will introduce another directive, the <code>cs-errors</code> directive. This will attach a blur event handler to
- the field as well as apply the <code>reveal-errors</code> class to this element on blur. At this point we should transition to targeting this
- class for most input specific error styles.</p>
+the field as well as apply the <code>reveal-errors</code> class to this element on blur. At this point we should transition to targeting this
+class for most input specific error styles.</p>
 
 <p>Doing this will give the user instant feedback on invalid fields, but won’t mark the field as invalid until they are
 done trying to enter valid information. It would be annoying to do this on focus because then they would be berated with 
-errors before they were even done.</p>
+errors before they were done.</p>
 
-<p>This directive will be attached to all form-groups (optional, but helps if you are using bootstrap). We’ll start with 
+<p>This directive will be attached to all form-groups (optional to add the class, but helps if you are using bootstrap). We’ll start with 
 the directive declaration.</p>
 
 <p>We give it a scope false, because this directive isn’t applying any new elements or any new packaged 
-content that would require a new scope context, it is simply adding additional functionality to what already functions.</p>
+content that would require a new scope context, it is simply adding additional functionality to what already exists.</p>
 
-<p>I’m using the link function here because we need access the directive element and we are doing mostly dom logic. Also
-we want this to run after the dom has been rendered, as well as to have access to Angular’s formController.</p>
+<p>I’m using the link function here because we need access to the directive element and we are doing mostly DOM logic. Also
+we want this to run after the DOM has been rendered, as well as to have access to Angular’s formController.</p>
 
 <div data-toggle=""></div>
 <div data-toggle-ts-js="">
@@ -510,7 +511,7 @@ is time to reveal the errors, as well as the <code>REVEAL_ERRORS_EVENT</code>. W
 
 <p>First we want to do a quick check to ensure we have the correct elements in the form-group to work with, so we check for
 an element with a name. This allows this directive to work with any ui component that uses <code>ng-model</code> validation, since we 
-are not limiting it to inputs, with a name we can even just have an inner ng-form.</p>
+are not limiting it to inputs, with a name we can even just have an inner ng-form that monitors the directives validity.</p>
 
 <p>After that we will set up our on blur handler. If you need to get fancier with your on blur you can pass in a a config object that
 will allow you to select on different elements, which will allow you to use more advanced/custome ui-components (more on this is 
@@ -527,21 +528,22 @@ as missing the field and attempting to submit the invalid form.</p>
 </div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="kr">export</span> <span class="kr">class</span> <span class="nx">Link</span> <span class="p">&#x7b;</span>
 </div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="kr">public</span> <span class="kr">static</span> <span class="nx">REVEAL_ERRORS_EVENT</span>: <span class="kt">string</span> <span class="o">=</span> <span class="s2">&quot;RevealErrors:&quot;</span><span class="p">;</span>
 </div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="kr">public</span> <span class="kr">static</span> <span class="nx">REVEAL_ERRORS_CLASS</span>: <span class="kt">string</span> <span class="o">=</span> <span class="s2">&quot;reveal-errors&quot;</span><span class="p">;</span>
-</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="kr">constructor</span><span class="p">(</span>
-</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="kr">private</span> <span class="nx">scope</span>:          <span class="kt">ng.IScope</span><span class="p">,</span>
-</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="kr">private</span> <span class="nx">element</span>:        <span class="kt">ng.IAugmentedJQuery</span>
-</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="p">)</span> <span class="p">&#x7b;</span>
-</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="kd">var</span> <span class="nx">inputEl</span>: <span class="kt">ng.IAugmentedJQuery</span> <span class="o">=</span> <span class="nx">element</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;[name]&quot;</span><span class="p">);</span>
-</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="kd">var</span> <span class="nx">inputName</span>: <span class="kt">string</span>            <span class="o">=</span> <span class="nx">inputEl</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">);</span>
-</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">inputName</span><span class="p">)</span> <span class="p">&#x7b;</span><span class="k">throw</span> <span class="s2">&quot;cs-errors element has no child input elements with a &#39;name&#39; attribute&quot;</span><span class="p">;&#x7d;</span>
-</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="nx">inputEl</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;blur&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">toggleClasses</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
-</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="k">this</span><span class="p">.</span><span class="nx">scope</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">toggleClasses</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
-</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="p">&#x7d;</span>
-</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="kr">private</span> <span class="nx">enableErrors</span><span class="p">()</span><span class="o">:</span> <span class="k">void</span> <span class="p">&#x7b;</span>
-</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="k">this</span><span class="p">.</span><span class="nx">element</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_CLASS</span><span class="p">);</span>
-</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="p">&#x7d;</span>
-</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="p">&#x7d;</span>
-</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="kr">public</span> <span class="kr">static</span> <span class="nx">HIDE_ERRORS_CLASS</span>:   <span class="kt">string</span> <span class="o">=</span> <span class="s2">&quot;hide-errors&quot;</span><span class="p">;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="kr">constructor</span><span class="p">(</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="kr">private</span> <span class="nx">scope</span>:          <span class="kt">ng.IScope</span><span class="p">,</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="kr">private</span> <span class="nx">element</span>:        <span class="kt">ng.IAugmentedJQuery</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="kd">var</span> <span class="nx">inputEl</span>: <span class="kt">ng.IAugmentedJQuery</span> <span class="o">=</span> <span class="nx">element</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;[name]&quot;</span><span class="p">);</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="kd">var</span> <span class="nx">inputName</span>: <span class="kt">string</span>            <span class="o">=</span> <span class="nx">inputEl</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">);</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">inputName</span><span class="p">)</span> <span class="p">&#x7b;</span><span class="k">throw</span> <span class="s2">&quot;cs-errors element has no child input elements with a &#39;name&#39; attribute&quot;</span><span class="p">;&#x7d;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="nx">inputEl</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;blur&quot;</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">toggleClasses</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="k">this</span><span class="p">.</span><span class="nx">scope</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">toggleClasses</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">));</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="p">&#x7d;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="kr">private</span> <span class="nx">enableErrors</span><span class="p">()</span><span class="o">:</span> <span class="k">void</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">			<span class="k">this</span><span class="p">.</span><span class="nx">element</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_CLASS</span><span class="p">);</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="p">&#x7d;</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="p">&#x7d;</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
 
 <figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">csErrors's link function</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">cs</span> <span class="o">=</span> <span class="nx">cs</span> <span class="o">||</span> <span class="p">&#x7b;&#x7d;;</span>
 </div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span> <span class="o">=</span> <span class="nx">cs</span><span class="p">.</span><span class="nx">errors</span> <span class="o">||</span> <span class="p">&#x7b;&#x7d;;</span> <span class="c1">//just extra code to export so other directives can use static members</span>
@@ -562,8 +564,9 @@ as missing the field and attempting to submit the invalid form.</p>
 </div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="p">&#x7d;;</span>
 </div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_EVENT</span> <span class="o">=</span> <span class="s2">&quot;RevealErrors:&quot;</span><span class="p">;</span>
 </div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nx">Link</span><span class="p">.</span><span class="nx">REVEAL_ERRORS_CLASS</span> <span class="o">=</span> <span class="s2">&quot;reveal-errors&quot;</span><span class="p">;</span>
-</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="k">return</span> <span class="nx">Link</span><span class="p">;</span>
-</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;)();</span></div></div></pre></div></figure>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nx">Link</span><span class="p">.</span><span class="nx">HIDE_ERRORS_CLASS</span>   <span class="o">=</span> <span class="s2">&quot;hide-errors&quot;</span><span class="p">;</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="k">return</span> <span class="nx">Link</span><span class="p">;</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;)();</span></div></div></pre></div></figure>
 
 </div>
 <p>Now lets update our <code>csErrorsForm</code> link function to communicate the event received from the <code>csErrorsSubmit</code> to all the <code>form-groups</code>
@@ -670,7 +673,9 @@ as a bower plugin with the name cs-angular-errors.</p>
 
 <p>This is enough to get most basic forms up and running, there are a few edge cases that we need to work out in part 2;
 such as when you have a directive that encapsulates a ui component that is used for input. This will not be rendered in time
-to get the form setup. As well as if you have multiple inputs for a single model.</p>
+to get the form setup. As well as if you have multiple inputs for a single model (like seperate first and last name fields).</p>
+
+<p>And finally check back for part 3 where I will go over the animations.</p>
 
   </article>
 
