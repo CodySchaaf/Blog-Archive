@@ -82,7 +82,7 @@ take up space. This will prevent the button from collapsing, but will force us t
 of the content.
 
 
-```html
+```html btnBusy template
 
 <div>
     <div ng-transclude ng-hide="busy" class="btn-busy-text"></div>
@@ -99,7 +99,7 @@ All together we have:
 <div data-toggle></div>
 <div data-toggle-TS-JS>
 
-```ts
+```ts btnBusy directive definition
 myApp.directive("btnBusy", () => {
     return {
         template: `<div>
@@ -117,7 +117,7 @@ myApp.directive("btnBusy", () => {
 });
 
 ```
-```javascript
+```javascript btnBusy directive definition
 
 myApp.directive("btnBusy", function () {
     return {
@@ -169,7 +169,7 @@ a full width so it appears centered.
 
 I have also added a default height and width, as well as a larger version, these will be specific to your site's button dimensions.
 
-```scss
+```scss btnBusy scss
 
 @keyframes rotate-360 {
     from { transform: rotate(0deg); }
@@ -220,7 +220,7 @@ I have also added a default height and width, as well as a larger version, these
 Finally to see it in action we can make a form and apply the directive to our submit button.
 
 
-```html
+```html btnBusy in action
 
 <div ng-app="myApp">
   <div ng-controller="Main as MainCtrl" class="container">
