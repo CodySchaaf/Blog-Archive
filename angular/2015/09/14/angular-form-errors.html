@@ -10,7 +10,7 @@
   <meta name="description" content="One of the most frustrating UX pitfalls, one which people new to Angular often utilize, is disabling buttonsto show that a form is not yet valid (ng-disabled...">
 
   <link rel="stylesheet" href="/css/main.css">
-  <link rel="canonical" href="http://codyschaaf.com/2015/09/14/angular-form-errors.html">
+  <link rel="canonical" href="http://codyschaaf.com/angular/2015/09/14/angular-form-errors.html">
   <link rel="alternate" type="application/rss+xml" title="Coding With Cody" href="http://codyschaaf.com/feed.xml" />
 </head>
 
@@ -70,13 +70,13 @@ highlights errors when a user attempts to advance when the form is invalid.</p>
 <p>To start we will implement a simpler version with the first two directives, then add the third one in after.</p>
 
 <p>In angular each form element (or ng-form attribute) will create a new formController. This controller–stored on the scope
-under the form’s name–can be leveraged to determine the validity of the form. The 3 directives will be <code>csErrorsSubmit</code>, 
-<code>csErrorsForm</code>, and <code>csErrors</code>. The way they will work is that all errors will start 
-hidden from the user, regardless of the forms current validity state. Once the user is done submitting their 
-information they will hit the submit button which will have the <code>csErrorsSubmit</code> directive on it. 
-This directive will ensure that the form is valid before submitting. If the form is 
-invalid it will block the ng-submit/ng-click action of the button, and then signal the <code>csErrorsForm</code> directive that an invalid submission 
-was triggered. Then the <code>csErrorsForm</code> directive will apply the <code>reveal-errors</code> class to the form, as well as find the first 
+under the form’s name–can be leveraged to determine the validity of the form. The 3 directives will be <code>csErrorsSubmit</code>,
+<code>csErrorsForm</code>, and <code>csErrors</code>. The way they will work is that all errors will start
+hidden from the user, regardless of the forms current validity state. Once the user is done submitting their
+information they will hit the submit button which will have the <code>csErrorsSubmit</code> directive on it.
+This directive will ensure that the form is valid before submitting. If the form is
+invalid it will block the ng-submit/ng-click action of the button, and then signal the <code>csErrorsForm</code> directive that an invalid submission
+was triggered. Then the <code>csErrorsForm</code> directive will apply the <code>reveal-errors</code> class to the form, as well as find the first
 invalid input field and scroll to that position. With the new class applied we will have the error revealed for the user to fix.
 The <code>csErrors</code> directive will allow for greater fine tuning as well as house the communication data (class names and event names).</p>
 
@@ -101,7 +101,7 @@ it makes writing and maintaining large apps much easier.</p>
 
 <p>Let’s setup the first directive’s definition.</p>
 
-<p>We give the <code>csErrorsSubmit</code> directive a scope false, because this directive isn’t applying any new elements or any new packaged 
+<p>We give the <code>csErrorsSubmit</code> directive a scope false, because this directive isn’t applying any new elements or any new packaged
 content that would require a new scope context, it is simply adding additional functionality to what already functions.
 It will also need access to the form, require the form using <code>^form</code> to have access to the current scope’s form for validity checks.</p>
 
@@ -111,8 +111,8 @@ link function is run in reverse order of priority. Since the click event is adde
 do the same. We also want to use the link function because it is taboo to inject the element into the controller, as well as we are doing mostly
 DOM work.</p>
 
-<p><em>You’ll notice I’m prefixing my directives with cs (CodySchaaf) since errors is a bit common, this will prevent any 
-clashes with future angular version that might release a directive with the same name, or future html standards that 
+<p><em>You’ll notice I’m prefixing my directives with cs (CodySchaaf) since errors is a bit common, this will prevent any
+clashes with future angular version that might release a directive with the same name, or future html standards that
 could release an attribute with the same name; sort of like Angular’s ng</em></p>
 
 <div data-toggle=""></div>
@@ -148,7 +148,7 @@ could release an attribute with the same name; sort of like Angular’s ng</em><
 
 <p>In the link function we will setup the on click event. The handler will check that the formCtrl is valid, if it is invalid
 it will emit an event. This event is composed of the <code>REVEAL_ERRORS_EVENT</code> name and the form’s name. We want to make it specific
-to the form because we could have these setups nested and we want to ensure that we are talking to the correct form. We use $emit instead 
+to the form because we could have these setups nested and we want to ensure that we are talking to the correct form. We use $emit instead
 of broadcast because the submit button will be nested inside the form and emit propagates up the scope.</p>
 
 <p>This works because of Angular’s awesome form handling. As long as you attach the appropriate ng-modal validating directives
@@ -251,9 +251,9 @@ that require found <code>errors-submit='form-name'</code>.</p>
 
 <p>For the implementation of the link function, we need access to the scope, the element, and the element’s attributes.</p>
 
-<p>The element is needed to add and remove the error classes. It will add a hide errors class on initialization, and then 
+<p>The element is needed to add and remove the error classes. It will add a hide errors class on initialization, and then
 remove that class, as well as add a reveal errors class once it receives the event from the <code>csErrorsSubmit</code> directive.
-This even will be listened to by the scope, with a scope.$on, and finally the attributes to get the form name and whether or 
+This even will be listened to by the scope, with a scope.$on, and finally the attributes to get the form name and whether or
 not you want the directive to scroll to fields that are invalid.</p>
 
 <div data-toggle=""></div>
@@ -286,15 +286,15 @@ not you want the directive to scroll to fields that are invalid.</p>
 with pre-validation specific css.</p>
 
 <p>Next we listen for the <code>REVEAL_ERRORS_EVENT</code> that was emitted by <code>csErrorsSubmit</code> with <code>scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name...</code>
-You can see here that we are adding the form name to the event name to ensure that the message is intended for this form. 
+You can see here that we are adding the form name to the event name to ensure that the message is intended for this form.
 This is to allow form nesting, you could also accomplish this by stopping the propagation, but I think this is more precise.
 The form name is pulled in from the form or ng-form element that this directive is placed on, since all forms should have a name attribute.</p>
 
-<p>Once we received this event we will add and remove the <code>REVEAL_ERRORS_CLASS</code> and <code>HIDE_ERRORS_CLASS</code> respectively. This will allow 
+<p>Once we received this event we will add and remove the <code>REVEAL_ERRORS_CLASS</code> and <code>HIDE_ERRORS_CLASS</code> respectively. This will allow
 your css to apply errors for the invalid fields based on the form’s current class coupled with Angular’s invalid classes on inputs with
 <code>ng-model</code>.</p>
 
-<p>Finally we will want to determine if the implementation wants us to scroll, specified by omitting the no-scroll string 
+<p>Finally we will want to determine if the implementation wants us to scroll, specified by omitting the no-scroll string
 to the directive instance <code>&lt;div cs-errors-form&gt;</code> instead of <code>&lt;div cs-errors-form='no-scroll'&gt;</code>. If no-scroll is passed in we just return,
 otherwise we search for the first instance of an elements with the ng-invalid class <code>element.find(".ng-invalid").first()</code>. If we find one
 we use the baked in jquery scroll animation to scroll to it.</p>
@@ -356,7 +356,7 @@ Most Angular apps will have invalid styles applied to their ui components by tar
 <p>Undo this styling if the element is located inside the <code>cs-errors-form</code> directive.
 This will allow the input element to appear valid even if the user has failed to enter a valid input yet. Allowing the form
 to look pristine even if the user has yet to interact with it. There is also the ability to target ng-pristine, but that leaves
-you helpless when a user has left a field pristine and is trying to submit the form. Ng-pristine is also clumsy and not super 
+you helpless when a user has left a field pristine and is trying to submit the form. Ng-pristine is also clumsy and not super
 cross browser friendly (I’m looking at you IE).</p>
 
 <p>As the comment suggests this is also where you could add custom directives that utilize ng-model validations, like a
@@ -370,7 +370,7 @@ date picker for example.</p>
 </div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="err">&#x7d;</span>
 </div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="err">&#x7d;</span></div></div></pre></div></figure>
 
-<p>Followed by adding back in your error mixins if the <code>cs-errors-form</code> has the <code>reveal-errors</code> class. Adding a little 
+<p>Followed by adding back in your error mixins if the <code>cs-errors-form</code> has the <code>reveal-errors</code> class. Adding a little
 polish by again applying the valid styles if the element is focused.</p>
 
 <figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="o">[</span><span class="nt">cs-errors-form</span><span class="o">]</span> <span class="err">&#x7b;</span>
@@ -454,7 +454,7 @@ allows for really clean and consistent error handling.</p>
 </div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nt">&lt;button</span> <span class="na">cs-errors-submit=</span><span class="s">&quot;userForm&quot;</span> <span class="na">ng-click=</span><span class="s">&quot;save()&quot;</span><span class="nt">&gt;</span>Create User<span class="nt">&lt;/button&gt;</span>
 </div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nt">&lt;/form&gt;</span></div></div></pre></div></figure>
 
-<p>At this point we have a working yet admittedly naive error handling. It will provide a good user experience for users that 
+<p>At this point we have a working yet admittedly naive error handling. It will provide a good user experience for users that
 have forgotten to fill out a field, but for users that have incorrectly filled out a field, they will have to wait till
 they try to submit it to see an error.</p>
 
@@ -463,13 +463,13 @@ the field as well as apply the <code>reveal-errors</code> class to this element 
 class for most input specific error styles.</p>
 
 <p>Doing this will give the user instant feedback on invalid fields, but won’t mark the field as invalid until they are
-done trying to enter valid information. It would be annoying to do this on focus because then they would be berated with 
+done trying to enter valid information. It would be annoying to do this on focus because then they would be berated with
 errors before they were done.</p>
 
-<p>This directive will be attached to all form-groups (optional to add the class, but helps if you are using bootstrap). We’ll start with 
+<p>This directive will be attached to all form-groups (optional to add the class, but helps if you are using bootstrap). We’ll start with
 the directive declaration.</p>
 
-<p>We give it a scope false, because this directive isn’t applying any new elements or any new packaged 
+<p>We give it a scope false, because this directive isn’t applying any new elements or any new packaged
 content that would require a new scope context, it is simply adding additional functionality to what already exists.</p>
 
 <p>I’m using the link function here because we need access to the directive element and we are doing mostly DOM logic. Also
@@ -505,16 +505,16 @@ we want this to run after the DOM has been rendered, as well as to have access t
 
 </div>
 
-<p>This is where I have chosen to store the static variables used in the other directives, at the top we have the 
-<code>REVEAL_ERRORS_CLASS</code> which is the name of the class we need to add to the element when it 
+<p>This is where I have chosen to store the static variables used in the other directives, at the top we have the
+<code>REVEAL_ERRORS_CLASS</code> which is the name of the class we need to add to the element when it
 is time to reveal the errors, as well as the <code>REVEAL_ERRORS_EVENT</code>. We pass the scope and the element to the constructor.</p>
 
 <p>First we want to do a quick check to ensure we have the correct elements in the form-group to work with, so we check for
-an element with a name. This allows this directive to work with any ui component that uses <code>ng-model</code> validation, since we 
+an element with a name. This allows this directive to work with any ui component that uses <code>ng-model</code> validation, since we
 are not limiting it to inputs, with a name we can even just have an inner ng-form that monitors the directives validity.</p>
 
 <p>After that we will set up our on blur handler. If you need to get fancier with your on blur you can pass in a a config object that
-will allow you to select on different elements, which will allow you to use more advanced/custome ui-components (more on this is 
+will allow you to select on different elements, which will allow you to use more advanced/custome ui-components (more on this is
 part 2).</p>
 
 <p>With the scope we listen for <code>REVEAL_ERRORS_EVENT</code> which we will catch after it is emitted from <code>csErrorsForm</code>.</p>

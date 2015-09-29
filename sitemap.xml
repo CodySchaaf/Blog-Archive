@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://codyschaaf.com/2015/09/14/angular-form-errors.html</loc>
+    <loc>http://codyschaaf.com/angular/2015/09/28/button-loaders.html</loc>
+    <lastmod>2015-09-28T19:44:26-07:00</lastmod>
+  </url>
+  <url>
+    <loc>http://codyschaaf.com/angular/2015/09/14/angular-form-errors.html</loc>
     <lastmod>2015-09-14T22:11:38-07:00</lastmod>
   </url>
   <url>
@@ -17,5 +21,9 @@
   </url>
   <url>
     <loc>http://codyschaaf.com/</loc>
+  </url>
+  <url>
+    <loc>http://codyschaaf.com/404.html</loc>
+    <lastmod>2015-09-28T21:30:37-07:00</lastmod>
   </url>
 </urlset>

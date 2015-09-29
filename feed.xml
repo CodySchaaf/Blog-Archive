@@ -6,9 +6,221 @@
 </description>
     <link>http://codyschaaf.com/</link>
     <atom:link href="http://codyschaaf.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 27 Sep 2015 15:51:20 -0700</pubDate>
-    <lastBuildDate>Sun, 27 Sep 2015 15:51:20 -0700</lastBuildDate>
+    <pubDate>Mon, 28 Sep 2015 21:31:26 -0700</pubDate>
+    <lastBuildDate>Mon, 28 Sep 2015 21:31:26 -0700</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
+    
+      <item>
+        <title>Button Loaders</title>
+        <description>&lt;p&gt;This post will detail how to build a simple button loader using AngularJs.&lt;/p&gt;
+
+&lt;p data-height=&quot;203&quot; data-theme-id=&quot;19100&quot; data-slug-hash=&quot;pjNLEQ&quot; data-default-tab=&quot;result&quot; data-user=&quot;codyschaaf&quot; class=&quot;codepen&quot;&gt;See the Pen &lt;a href=&quot;http://codepen.io/codyschaaf/pen/pjNLEQ/&quot;&gt;Button Loader&lt;/a&gt; by Cody Schaaf (&lt;a href=&quot;http://codepen.io/codyschaaf&quot;&gt;@codyschaaf&lt;/a&gt;) on &lt;a href=&quot;http://codepen.io&quot;&gt;CodePen&lt;/a&gt;.&lt;/p&gt;
+&lt;script async=&quot;&quot; src=&quot;//assets.codepen.io/assets/embed/ei.js&quot;&gt;&lt;/script&gt;
+
+&lt;p&gt;This directive allows for a busy state to quickly and simply be applied to a form button in an Angular app. To use this directive
+define a button as you normally would, and then apply the &lt;code&gt;btn-busy&lt;/code&gt; directive with the scope variable that controls the
+toggle &lt;code&gt;btn-busy=&quot;isProcessing&quot;&lt;/code&gt;.&lt;/p&gt;
+
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;figcaption class=&quot;code-highlight-caption&quot;&gt;&lt;span class=&quot;code-highlight-caption-title&quot;&gt;example usage&lt;/span&gt;&lt;/figcaption&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-click=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;submit()&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;btn-busy=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;isSubmitting&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-disabled=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;isSubmitting&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Submit&lt;span class=&quot;nt&quot;&gt;&amp;lt;/button&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+&lt;p&gt;Optionally you can add an ng-disabled to prevent additional clicks while the form is processing. Typically I’m against ng-disabled, but I think this
+is a great use case for it.&lt;/p&gt;
+
+&lt;h1 id=&quot;btnbusy-directive&quot;&gt;btnBusy Directive&lt;/h1&gt;
+
+&lt;p&gt;For the directive definition we have a template, and an isolate scope which will get its busy attribute from the directive definition.
+By having &lt;code&gt;busy: &quot;=btnBusy&quot;&lt;/code&gt; in the scope definition angular will look for btn-busy on the directive instance (seen above),
+but it will make the variable available for usage in the directive’s template via the busy variable for clarity. This allows our
+directive to be compact and not require an additional attribute.&lt;/p&gt;
+
+&lt;p&gt;Finally we want transclude true to be set. Transclude can be a bit scary at first, but all it does is it allows for the directive
+to extract the content in the directive instance (markup that is between the opening and closing &lt;code&gt;button&lt;/code&gt; tags, which is ‘Submit’ in the example above), and
+inject that at some point into the directive’s template. This point is specified by the ng-transclude tag.&lt;/p&gt;
+
+&lt;div data-toggle=&quot;&quot;&gt;&lt;/div&gt;
+&lt;div data-toggle-ts-js=&quot;&quot;&gt;
+
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;figcaption class=&quot;code-highlight-caption&quot;&gt;&lt;span class=&quot;code-highlight-caption-title&quot;&gt;btnBusy directive definition&lt;/span&gt;&lt;/figcaption&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;myApp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;directive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;btnBusy&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;template&lt;/span&gt;: &lt;span class=&quot;kt&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;4&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;transclude&lt;/span&gt;: &lt;span class=&quot;kt&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;5&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;scope&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;            &lt;span class=&quot;nx&quot;&gt;busy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;=btnBusy&amp;quot;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;7&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;p&quot;&gt;&amp;#x7d;,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;8&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;restrict&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;A&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;9&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;10&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;p&quot;&gt;&amp;#x7d;);&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;figcaption class=&quot;code-highlight-caption&quot;&gt;&lt;span class=&quot;code-highlight-caption-title&quot;&gt;btnBusy directive definition&lt;/span&gt;&lt;/figcaption&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;myApp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;directive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;btnBusy&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;4&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;transclude&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;5&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;scope&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;            &lt;span class=&quot;nx&quot;&gt;busy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;=btnBusy&amp;quot;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;7&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;p&quot;&gt;&amp;#x7d;,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;8&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;restrict&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;A&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;9&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;10&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;p&quot;&gt;&amp;#x7d;);&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;For the directive template we start with a containing &lt;code&gt;div&lt;/code&gt;, this will be the element that gets a &lt;code&gt;position: relative&lt;/code&gt;, and
+will allow the button to remain at the same width as it was when it had text in it, before we replaced it with a spinner.&lt;/p&gt;
+
+&lt;p&gt;If we just allowed Angular’s default hidden state the text would get a &lt;code&gt;display: none&lt;/code&gt; and the button would collapse down
+to the size of the spinner. This way we get a much more polished experience, as well as a nice directive to hide all
+the logic that would be a pain to repeat every time.&lt;/p&gt;
+
+&lt;p&gt;Inside this container element we place a &lt;code&gt;div&lt;/code&gt; with ng-transclude, remember this is the place holder for our injected content.
+This is the element that allows our directive to be reusable with any content. We add &lt;code&gt;ng-hide=&#39;busy&#39;&lt;/code&gt; so that we can control the
+state of button. When busy is true the content will be hidden.&lt;/p&gt;
+
+&lt;p&gt;The busy container will hold the busy animation, and will get a &lt;code&gt;position: absolute&lt;/code&gt; so that it can be positioned to not take up space,
+and will be placed on top of the content. When the directive switches to its busy state the content will be hidden, but will continue to
+take up space. This will prevent the button from collapsing, but will force us to absolutely position the busy animation on top
+of the content.&lt;/p&gt;
+
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-transclude&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-hide=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;busy&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;btn-busy-text&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;busy-container&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;4&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;busy&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-show=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;busy&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;5&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+&lt;p&gt;All together we have:&lt;/p&gt;
+
+&lt;div data-toggle=&quot;&quot;&gt;&lt;/div&gt;
+&lt;div data-toggle-ts-js=&quot;&quot;&gt;
+
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;myApp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;directive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;btnBusy&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;div&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;4&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;                      &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;div&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ng&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;transclude&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ng&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;hide&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;busy&amp;quot;&lt;/span&gt; &lt;span class=&quot;kr&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;btn-busy-text&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/div&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;5&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;                      &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;div&lt;/span&gt; &lt;span class=&quot;kr&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;busy-container&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;                          &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;div&lt;/span&gt; &lt;span class=&quot;kr&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;busy&amp;quot;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ng&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;show&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;busy&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/div&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;7&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;                      &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/div&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;8&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;                  &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;/div&amp;gt;`,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;9&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;transclude&lt;/span&gt;: &lt;span class=&quot;kt&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;10&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;scope&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;11&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;            &lt;span class=&quot;nx&quot;&gt;busy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;=btnBusy&amp;quot;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;12&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;p&quot;&gt;&amp;#x7d;,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;13&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;restrict&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;A&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;14&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;15&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;p&quot;&gt;&amp;#x7d;);&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;myApp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;directive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;btnBusy&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;&amp;lt;div&amp;gt;\n&amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;4&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;                  &lt;span class=&quot;s2&quot;&gt;&amp;quot;&amp;lt;div ng-transclude ng-hide=\&amp;quot;busy\&amp;quot; class=\&amp;quot;btn-busy-text\&amp;quot;&amp;gt;&amp;lt;/div&amp;gt;\n&amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;5&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;                  &lt;span class=&quot;s2&quot;&gt;&amp;quot;&amp;lt;div class=\&amp;quot;busy-container\&amp;quot;&amp;gt;\n&amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;                  &lt;span class=&quot;s2&quot;&gt;&amp;quot;&amp;lt;div class=\&amp;quot;busy\&amp;quot; ng-show=\&amp;quot;busy\&amp;quot;&amp;gt;&amp;lt;/div&amp;gt;\n&amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;7&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;                  &lt;span class=&quot;s2&quot;&gt;&amp;quot;&amp;lt;/div&amp;gt;\n&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;8&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;                  &lt;span class=&quot;s2&quot;&gt;&amp;quot;&amp;lt;/div&amp;gt;&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;9&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;transclude&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;10&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;scope&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;11&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;            &lt;span class=&quot;nx&quot;&gt;busy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;=btnBusy&amp;quot;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;12&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;p&quot;&gt;&amp;#x7d;,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;13&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;restrict&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;A&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;14&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;15&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;p&quot;&gt;&amp;#x7d;);&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+&lt;/div&gt;
+
+&lt;p&gt;For the css, we need to define a processing animation. I have chosen a spinner because it fits nicely, but you can substitute
+your favorite loading state.&lt;/p&gt;
+
+&lt;p&gt;First we have the keyframe definition, then inside our directive name space we have directive specific styles.&lt;/p&gt;
+
+&lt;p&gt;We have the containing div with a relative position, this allows the position absolute to be positioned relative to this
+parent element.&lt;/p&gt;
+
+&lt;p&gt;The busy class gets all of the animation styles including the animation definition. Notice &lt;code&gt;infinite&lt;/code&gt; which allows the
+animation to repeat itself. We define a boarder as well as a border radius to get our circular spinner.
+We also need to override the animation with a 0s animation once ng-hide-add class is added to the element, but only if you have
+the ngAnimate module installed.&lt;/p&gt;
+
+&lt;p&gt;For a quick aside on animations which only apply if you have the ngAnimate module installed,
+once the scope variable becomes true for ng-hide angular will apply an &lt;code&gt;ng-hide-add&lt;/code&gt; class as well as an &lt;code&gt;ng-animate&lt;/code&gt;.
+After this class is added it will scan the element for any transitions or animations. It will store the specified time, and then
+it will add the &lt;code&gt;ng-hide-add-active&lt;/code&gt; and &lt;code&gt;ng-hide&lt;/code&gt; classes. Once these classes are applied it will wait for the above
+stored time until it removes the element from view by removing the ng-animate class which was blocking the affects of ng-hide.
+It does this because it assumes the applied animation or transition is meant to transition the element out of view.
+Typically this is exactly what we want, but for this use case we don’t want the element to remain in view for an extra
+.8 seconds, so we override it to 0 seconds before angular does its check.&lt;/p&gt;
+
+&lt;p&gt;For the &lt;code&gt;btn-busy-text&lt;/code&gt; class we need to override the default &lt;code&gt;ng-hide&lt;/code&gt; styles. The default styles apply a &lt;code&gt;display: none !important&lt;/code&gt;
+and would cause the element to disappear and collapse the button. We want it to remain a block level element even when hidden so we add &lt;code&gt;display: block !important;&lt;/code&gt;
+Note the &lt;code&gt;!important&lt;/code&gt; which is required to override Angular’s &lt;code&gt;!important&lt;/code&gt;. We also give it an opacity of 0 so that it appears hidden.&lt;/p&gt;
+
+&lt;p&gt;Then we give the &lt;code&gt;busy-container&lt;/code&gt; an absolute position. Then we position it and give it
+a full width so it appears centered.&lt;/p&gt;
+
+&lt;p&gt;I have also added a default height and width, as well as a larger version, these will be specific to your site’s button dimensions.&lt;/p&gt;
+
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;k&quot;&gt;@keyframes&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;rotate-360&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nt&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;transform&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;rotate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;deg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nt&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;transform&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;rotate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;360&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;deg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;4&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;5&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;btn-busy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;7&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;div&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;8&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;position&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;relative&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;9&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;10&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nc&quot;&gt;.busy&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;11&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;animation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rotate-360&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;.8&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;s&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;infinite&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;linear&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;12&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;border&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;px&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;solid&lt;/span&gt; &lt;span class=&quot;ni&quot;&gt;slategray&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;13&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;border-radius&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;50&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;14&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;border-right-color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;ni&quot;&gt;midnightblue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;15&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;border-top-color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;ni&quot;&gt;midnightblue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;16&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;display&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;inline&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;block&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;17&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;k&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;.ng-hide-add&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;18&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;            &lt;span class=&quot;na&quot;&gt;animation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;none&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//allow for quick removal (ignore .8 second animation from rotate-360)&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;19&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;20&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;21&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nc&quot;&gt;.btn-busy-text&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;22&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;k&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;.ng-hide&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;23&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;            &lt;span class=&quot;na&quot;&gt;display&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;block&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;!important&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//override angular&amp;#39;s default&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;24&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;            &lt;span class=&quot;na&quot;&gt;opacity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;25&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;26&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;27&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nc&quot;&gt;.busy-container&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;28&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;position&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;absolute&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;29&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;top&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;30&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;left&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;31&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;32&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;33&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nc&quot;&gt;.busy&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;34&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;35&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;36&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;37&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;38&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;k&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;.btn-busy-large&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;.busy&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;39&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;32&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;40&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;na&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;32&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;px&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;41&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;42&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;43&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+&lt;p&gt;Finally to see it in action we can make a form and apply the directive to our submit button.&lt;/p&gt;
+
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-app=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;myApp&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-controller=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Main as MainCtrl&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;container&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nt&quot;&gt;&amp;lt;form&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;timeForm&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;form-inline&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;novalidate&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;4&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;nt&quot;&gt;&amp;lt;h5&amp;gt;&lt;/span&gt;How long should we wait (ms)?&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h5&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;5&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;form-group&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;text&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;input-s form-control&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;time&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-model=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;MainCtrl.waitTime&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;placeholder=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;time&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-required=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;true&amp;quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;7&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;8&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;9&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;nt&quot;&gt;&amp;lt;button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;btn btn-primary&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-click=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;MainCtrl.wait()&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;btn-busy=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;MainCtrl.waiting&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-disabled=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;MainCtrl.waiting&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Let&amp;#39;s Wait!&lt;span class=&quot;nt&quot;&gt;&amp;lt;/button&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;10&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/form&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;11&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;12&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;13&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+</description>
+        <pubDate>Mon, 28 Sep 2015 19:44:26 -0700</pubDate>
+        <link>http://codyschaaf.com/angular/2015/09/28/button-loaders.html</link>
+        <guid isPermaLink="true">http://codyschaaf.com/angular/2015/09/28/button-loaders.html</guid>
+        
+        
+        <category>angular</category>
+        
+      </item>
     
       <item>
         <title>Angular Form Errors</title>
@@ -22,13 +234,13 @@ highlights errors when a user attempts to advance when the form is invalid.&lt;/
 &lt;p&gt;To start we will implement a simpler version with the first two directives, then add the third one in after.&lt;/p&gt;
 
 &lt;p&gt;In angular each form element (or ng-form attribute) will create a new formController. This controller–stored on the scope
-under the form’s name–can be leveraged to determine the validity of the form. The 3 directives will be &lt;code&gt;csErrorsSubmit&lt;/code&gt;, 
-&lt;code&gt;csErrorsForm&lt;/code&gt;, and &lt;code&gt;csErrors&lt;/code&gt;. The way they will work is that all errors will start 
-hidden from the user, regardless of the forms current validity state. Once the user is done submitting their 
-information they will hit the submit button which will have the &lt;code&gt;csErrorsSubmit&lt;/code&gt; directive on it. 
-This directive will ensure that the form is valid before submitting. If the form is 
-invalid it will block the ng-submit/ng-click action of the button, and then signal the &lt;code&gt;csErrorsForm&lt;/code&gt; directive that an invalid submission 
-was triggered. Then the &lt;code&gt;csErrorsForm&lt;/code&gt; directive will apply the &lt;code&gt;reveal-errors&lt;/code&gt; class to the form, as well as find the first 
+under the form’s name–can be leveraged to determine the validity of the form. The 3 directives will be &lt;code&gt;csErrorsSubmit&lt;/code&gt;,
+&lt;code&gt;csErrorsForm&lt;/code&gt;, and &lt;code&gt;csErrors&lt;/code&gt;. The way they will work is that all errors will start
+hidden from the user, regardless of the forms current validity state. Once the user is done submitting their
+information they will hit the submit button which will have the &lt;code&gt;csErrorsSubmit&lt;/code&gt; directive on it.
+This directive will ensure that the form is valid before submitting. If the form is
+invalid it will block the ng-submit/ng-click action of the button, and then signal the &lt;code&gt;csErrorsForm&lt;/code&gt; directive that an invalid submission
+was triggered. Then the &lt;code&gt;csErrorsForm&lt;/code&gt; directive will apply the &lt;code&gt;reveal-errors&lt;/code&gt; class to the form, as well as find the first
 invalid input field and scroll to that position. With the new class applied we will have the error revealed for the user to fix.
 The &lt;code&gt;csErrors&lt;/code&gt; directive will allow for greater fine tuning as well as house the communication data (class names and event names).&lt;/p&gt;
 
@@ -53,7 +265,7 @@ it makes writing and maintaining large apps much easier.&lt;/p&gt;
 
 &lt;p&gt;Let’s setup the first directive’s definition.&lt;/p&gt;
 
-&lt;p&gt;We give the &lt;code&gt;csErrorsSubmit&lt;/code&gt; directive a scope false, because this directive isn’t applying any new elements or any new packaged 
+&lt;p&gt;We give the &lt;code&gt;csErrorsSubmit&lt;/code&gt; directive a scope false, because this directive isn’t applying any new elements or any new packaged
 content that would require a new scope context, it is simply adding additional functionality to what already functions.
 It will also need access to the form, require the form using &lt;code&gt;^form&lt;/code&gt; to have access to the current scope’s form for validity checks.&lt;/p&gt;
 
@@ -63,8 +275,8 @@ link function is run in reverse order of priority. Since the click event is adde
 do the same. We also want to use the link function because it is taboo to inject the element into the controller, as well as we are doing mostly
 DOM work.&lt;/p&gt;
 
-&lt;p&gt;&lt;em&gt;You’ll notice I’m prefixing my directives with cs (CodySchaaf) since errors is a bit common, this will prevent any 
-clashes with future angular version that might release a directive with the same name, or future html standards that 
+&lt;p&gt;&lt;em&gt;You’ll notice I’m prefixing my directives with cs (CodySchaaf) since errors is a bit common, this will prevent any
+clashes with future angular version that might release a directive with the same name, or future html standards that
 could release an attribute with the same name; sort of like Angular’s ng&lt;/em&gt;&lt;/p&gt;
 
 &lt;div data-toggle=&quot;&quot;&gt;&lt;/div&gt;
@@ -100,7 +312,7 @@ could release an attribute with the same name; sort of like Angular’s ng&lt;/e
 
 &lt;p&gt;In the link function we will setup the on click event. The handler will check that the formCtrl is valid, if it is invalid
 it will emit an event. This event is composed of the &lt;code&gt;REVEAL_ERRORS_EVENT&lt;/code&gt; name and the form’s name. We want to make it specific
-to the form because we could have these setups nested and we want to ensure that we are talking to the correct form. We use $emit instead 
+to the form because we could have these setups nested and we want to ensure that we are talking to the correct form. We use $emit instead
 of broadcast because the submit button will be nested inside the form and emit propagates up the scope.&lt;/p&gt;
 
 &lt;p&gt;This works because of Angular’s awesome form handling. As long as you attach the appropriate ng-modal validating directives
@@ -203,9 +415,9 @@ that require found &lt;code&gt;errors-submit=&#39;form-name&#39;&lt;/code&gt;.&l
 
 &lt;p&gt;For the implementation of the link function, we need access to the scope, the element, and the element’s attributes.&lt;/p&gt;
 
-&lt;p&gt;The element is needed to add and remove the error classes. It will add a hide errors class on initialization, and then 
+&lt;p&gt;The element is needed to add and remove the error classes. It will add a hide errors class on initialization, and then
 remove that class, as well as add a reveal errors class once it receives the event from the &lt;code&gt;csErrorsSubmit&lt;/code&gt; directive.
-This even will be listened to by the scope, with a scope.$on, and finally the attributes to get the form name and whether or 
+This even will be listened to by the scope, with a scope.$on, and finally the attributes to get the form name and whether or
 not you want the directive to scroll to fields that are invalid.&lt;/p&gt;
 
 &lt;div data-toggle=&quot;&quot;&gt;&lt;/div&gt;
@@ -238,15 +450,15 @@ not you want the directive to scroll to fields that are invalid.&lt;/p&gt;
 with pre-validation specific css.&lt;/p&gt;
 
 &lt;p&gt;Next we listen for the &lt;code&gt;REVEAL_ERRORS_EVENT&lt;/code&gt; that was emitted by &lt;code&gt;csErrorsSubmit&lt;/code&gt; with &lt;code&gt;scope.$on(cs.errors.Link.REVEAL_ERRORS_EVENT + attrs.name...&lt;/code&gt;
-You can see here that we are adding the form name to the event name to ensure that the message is intended for this form. 
+You can see here that we are adding the form name to the event name to ensure that the message is intended for this form.
 This is to allow form nesting, you could also accomplish this by stopping the propagation, but I think this is more precise.
 The form name is pulled in from the form or ng-form element that this directive is placed on, since all forms should have a name attribute.&lt;/p&gt;
 
-&lt;p&gt;Once we received this event we will add and remove the &lt;code&gt;REVEAL_ERRORS_CLASS&lt;/code&gt; and &lt;code&gt;HIDE_ERRORS_CLASS&lt;/code&gt; respectively. This will allow 
+&lt;p&gt;Once we received this event we will add and remove the &lt;code&gt;REVEAL_ERRORS_CLASS&lt;/code&gt; and &lt;code&gt;HIDE_ERRORS_CLASS&lt;/code&gt; respectively. This will allow
 your css to apply errors for the invalid fields based on the form’s current class coupled with Angular’s invalid classes on inputs with
 &lt;code&gt;ng-model&lt;/code&gt;.&lt;/p&gt;
 
-&lt;p&gt;Finally we will want to determine if the implementation wants us to scroll, specified by omitting the no-scroll string 
+&lt;p&gt;Finally we will want to determine if the implementation wants us to scroll, specified by omitting the no-scroll string
 to the directive instance &lt;code&gt;&amp;lt;div cs-errors-form&amp;gt;&lt;/code&gt; instead of &lt;code&gt;&amp;lt;div cs-errors-form=&#39;no-scroll&#39;&amp;gt;&lt;/code&gt;. If no-scroll is passed in we just return,
 otherwise we search for the first instance of an elements with the ng-invalid class &lt;code&gt;element.find(&quot;.ng-invalid&quot;).first()&lt;/code&gt;. If we find one
 we use the baked in jquery scroll animation to scroll to it.&lt;/p&gt;
@@ -308,7 +520,7 @@ Most Angular apps will have invalid styles applied to their ui components by tar
 &lt;p&gt;Undo this styling if the element is located inside the &lt;code&gt;cs-errors-form&lt;/code&gt; directive.
 This will allow the input element to appear valid even if the user has failed to enter a valid input yet. Allowing the form
 to look pristine even if the user has yet to interact with it. There is also the ability to target ng-pristine, but that leaves
-you helpless when a user has left a field pristine and is trying to submit the form. Ng-pristine is also clumsy and not super 
+you helpless when a user has left a field pristine and is trying to submit the form. Ng-pristine is also clumsy and not super
 cross browser friendly (I’m looking at you IE).&lt;/p&gt;
 
 &lt;p&gt;As the comment suggests this is also where you could add custom directives that utilize ng-model validations, like a
@@ -322,7 +534,7 @@ date picker for example.&lt;/p&gt;
 &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;	&lt;span class=&quot;err&quot;&gt;&amp;#x7d;&lt;/span&gt;
 &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;7&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;err&quot;&gt;&amp;#x7d;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
 
-&lt;p&gt;Followed by adding back in your error mixins if the &lt;code&gt;cs-errors-form&lt;/code&gt; has the &lt;code&gt;reveal-errors&lt;/code&gt; class. Adding a little 
+&lt;p&gt;Followed by adding back in your error mixins if the &lt;code&gt;cs-errors-form&lt;/code&gt; has the &lt;code&gt;reveal-errors&lt;/code&gt; class. Adding a little
 polish by again applying the valid styles if the element is focused.&lt;/p&gt;
 
 &lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;cs-errors-form&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;&amp;#x7b;&lt;/span&gt;
@@ -406,7 +618,7 @@ allows for really clean and consistent error handling.&lt;/p&gt;
 &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;16&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;17&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;	&lt;span class=&quot;nt&quot;&gt;&amp;lt;button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;cs-errors-submit=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;userForm&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-click=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;save()&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Create User&lt;span class=&quot;nt&quot;&gt;&amp;lt;/button&amp;gt;&lt;/span&gt;
 &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;18&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/form&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
 
-&lt;p&gt;At this point we have a working yet admittedly naive error handling. It will provide a good user experience for users that 
+&lt;p&gt;At this point we have a working yet admittedly naive error handling. It will provide a good user experience for users that
 have forgotten to fill out a field, but for users that have incorrectly filled out a field, they will have to wait till
 they try to submit it to see an error.&lt;/p&gt;
 
@@ -415,13 +627,13 @@ the field as well as apply the &lt;code&gt;reveal-errors&lt;/code&gt; class to t
 class for most input specific error styles.&lt;/p&gt;
 
 &lt;p&gt;Doing this will give the user instant feedback on invalid fields, but won’t mark the field as invalid until they are
-done trying to enter valid information. It would be annoying to do this on focus because then they would be berated with 
+done trying to enter valid information. It would be annoying to do this on focus because then they would be berated with
 errors before they were done.&lt;/p&gt;
 
-&lt;p&gt;This directive will be attached to all form-groups (optional to add the class, but helps if you are using bootstrap). We’ll start with 
+&lt;p&gt;This directive will be attached to all form-groups (optional to add the class, but helps if you are using bootstrap). We’ll start with
 the directive declaration.&lt;/p&gt;
 
-&lt;p&gt;We give it a scope false, because this directive isn’t applying any new elements or any new packaged 
+&lt;p&gt;We give it a scope false, because this directive isn’t applying any new elements or any new packaged
 content that would require a new scope context, it is simply adding additional functionality to what already exists.&lt;/p&gt;
 
 &lt;p&gt;I’m using the link function here because we need access to the directive element and we are doing mostly DOM logic. Also
@@ -457,16 +669,16 @@ we want this to run after the DOM has been rendered, as well as to have access t
 
 &lt;/div&gt;
 
-&lt;p&gt;This is where I have chosen to store the static variables used in the other directives, at the top we have the 
-&lt;code&gt;REVEAL_ERRORS_CLASS&lt;/code&gt; which is the name of the class we need to add to the element when it 
+&lt;p&gt;This is where I have chosen to store the static variables used in the other directives, at the top we have the
+&lt;code&gt;REVEAL_ERRORS_CLASS&lt;/code&gt; which is the name of the class we need to add to the element when it
 is time to reveal the errors, as well as the &lt;code&gt;REVEAL_ERRORS_EVENT&lt;/code&gt;. We pass the scope and the element to the constructor.&lt;/p&gt;
 
 &lt;p&gt;First we want to do a quick check to ensure we have the correct elements in the form-group to work with, so we check for
-an element with a name. This allows this directive to work with any ui component that uses &lt;code&gt;ng-model&lt;/code&gt; validation, since we 
+an element with a name. This allows this directive to work with any ui component that uses &lt;code&gt;ng-model&lt;/code&gt; validation, since we
 are not limiting it to inputs, with a name we can even just have an inner ng-form that monitors the directives validity.&lt;/p&gt;
 
 &lt;p&gt;After that we will set up our on blur handler. If you need to get fancier with your on blur you can pass in a a config object that
-will allow you to select on different elements, which will allow you to use more advanced/custome ui-components (more on this is 
+will allow you to select on different elements, which will allow you to use more advanced/custome ui-components (more on this is
 part 2).&lt;/p&gt;
 
 &lt;p&gt;With the scope we listen for &lt;code&gt;REVEAL_ERRORS_EVENT&lt;/code&gt; which we will catch after it is emitted from &lt;code&gt;csErrorsForm&lt;/code&gt;.&lt;/p&gt;
@@ -630,9 +842,11 @@ to get the form setup. As well as if you have multiple inputs for a single model
 &lt;p&gt;And finally check back for part 3 where I will go over the animations.&lt;/p&gt;
 </description>
         <pubDate>Mon, 14 Sep 2015 22:11:38 -0700</pubDate>
-        <link>http://codyschaaf.com/2015/09/14/angular-form-errors.html</link>
-        <guid isPermaLink="true">http://codyschaaf.com/2015/09/14/angular-form-errors.html</guid>
+        <link>http://codyschaaf.com/angular/2015/09/14/angular-form-errors.html</link>
+        <guid isPermaLink="true">http://codyschaaf.com/angular/2015/09/14/angular-form-errors.html</guid>
         
+        
+        <category>angular</category>
         
       </item>
     
