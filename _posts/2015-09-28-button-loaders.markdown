@@ -1,46 +1,55 @@
 ---
 layout: post
 title: Button Loaders
+date: 2015-09-28T19:44:26-07:00
+comments: true
+categories: angular
 ---
 
-#Button Loaders
+This post will detail how to build a simple button loader using AngularJs.
 
-This directive allows for a busy state to quickly/simply be applied to a form button in an Angular app. To use this directive
-simple define a button as you normally would, and then apply the `btn-busy` directive with the scope variable that controls the
-toggle `btn-busy="processing"`.
+<p data-height="203" data-theme-id="19100" data-slug-hash="pjNLEQ" data-default-tab="result" data-user="codyschaaf" class='codepen'>See the Pen <a href='http://codepen.io/codyschaaf/pen/pjNLEQ/'>Button Loader</a> by Cody Schaaf (<a href='http://codepen.io/codyschaaf'>@codyschaaf</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
+<script async src="//assets.codepen.io/assets/embed/ei.js"></script>
 
-```html
-<button class="btn btn-primary" ng-click="MainCtrl.submit()" btn-busy="MainCtrl.submitting" ng-disabled="MainCtrl.submitting">Submit</button>
+This directive allows for a busy state to quickly and simply be applied to a form button in an Angular app. To use this directive
+define a button as you normally would, and then apply the `btn-busy` directive with the scope variable that controls the
+toggle `btn-busy="isProcessing"`.
+
+```html example usage
+<button ng-click="submit()" btn-busy="isSubmitting" ng-disabled="isSubmitting">Submit</button>
 ```
 
 Optionally you can add an ng-disabled to prevent additional clicks while the form is processing. Typically I'm against ng-disabled, but I think this
 is a great use case for it.
 
-For the directive definition we have template, a scope which will get its busy attribute from the directive definition.
+#btnBusy Directive
+
+For the directive definition we have a template, and an isolate scope which will get its busy attribute from the directive definition.
 By having `busy: "=btnBusy"` in the scope definition angular will look for btn-busy on the directive instance (seen above),
-but it will make the variable available for usage in the directive's template via the busy variable for simplicity.
+but it will make the variable available for usage in the directive's template via the busy variable for clarity. This allows our
+directive to be compact and not require an additional attribute.
 
 Finally we want transclude true to be set. Transclude can be a bit scary at first, but all it does is it allows for the directive
-to extract the content in the directive instance that is between the opening and closing `button` tags (Submit in the example above), and
-inject that at some point into the directives template. This point is specified by the ng-transclude tag.
+to extract the content in the directive instance (markup that is between the opening and closing `button` tags, which is 'Submit' in the example above), and
+inject that at some point into the directive's template. This point is specified by the ng-transclude tag.
 
 <div data-toggle></div>
 <div data-toggle-TS-JS>
 
-```ts
+```ts btnBusy directive definition
 myApp.directive("btnBusy", () => {
-  return {
-    template: ...,
-    transclude: true,
-    scope: {
-      busy: "=btnBusy"
-    },
-    restrict: "A",
-  };
+    return {
+        template: ...,
+        transclude: true,
+        scope: {
+            busy: "=btnBusy"
+        },
+        restrict: "A",
+    };
 });
 
 ```
-```javascript
+```javascript btnBusy directive definition
 
 myApp.directive("btnBusy", function () {
     return {
@@ -68,8 +77,8 @@ This is the element that allows our directive to be reusable with any content. W
 state of button. When busy is true the content will be hidden.
 
 The busy container will hold the busy animation, and will get a `position: absolute` so that it can be positioned to not take up space,
-and will be placed on top of the content. When the directive switched to its busy state the content will be hidden, but will continue to
-take up space. This will prevent the button from collapsing, but will force use to absolutely position the busy animation on top
+and will be placed on top of the content. When the directive switches to its busy state the content will be hidden, but will continue to
+take up space. This will prevent the button from collapsing, but will force us to absolutely position the busy animation on top
 of the content.
 
 
@@ -92,19 +101,19 @@ All together we have:
 
 ```ts
 myApp.directive("btnBusy", () => {
-  return {
-    template: `<div>
-                  <div ng-transclude ng-hide="busy" class="btn-busy-text"></div>
-                  <div class="busy-container">
-                      <div class="busy" ng-show="busy"></div>
-                  </div>
-              </div>`,
-    transclude: true,
-    scope: {
-      busy: "=btnBusy"
-    },
-    restrict: "A",
-  };
+    return {
+        template: `<div>
+                      <div ng-transclude ng-hide="busy" class="btn-busy-text"></div>
+                      <div class="busy-container">
+                          <div class="busy" ng-show="busy"></div>
+                      </div>
+                  </div>`,
+        transclude: true,
+        scope: {
+            busy: "=btnBusy"
+        },
+        restrict: "A",
+    };
 });
 
 ```
@@ -148,17 +157,17 @@ After this class is added it will scan the element for any transitions or animat
 it will add the `ng-hide-add-active` and `ng-hide` classes. Once these classes are applied it will wait for the above
 stored time until it removes the element from view by removing the ng-animate class which was blocking the affects of ng-hide.
 It does this because it assumes the applied animation or transition is meant to transition the element out of view.
-Typically this is exactly what we want, but for this use case we don't want to element to remain in the view for an extra
-.8 seconds, so we override it.
+Typically this is exactly what we want, but for this use case we don't want the element to remain in view for an extra
+.8 seconds, so we override it to 0 seconds before angular does its check.
 
 For the `btn-busy-text` class we need to override the default `ng-hide` styles. The default styles apply a `display: none !important`
-and would cause the element to disappear and collapse the button. We want it to remain a block even when hidden so we add `display: block !important;`
-Note the important which is required to override Angular's important. We also give it an opacity of 0 so that it appears hidden.
+and would cause the element to disappear and collapse the button. We want it to remain a block level element even when hidden so we add `display: block !important;`
+Note the `!important` which is required to override Angular's `!important`. We also give it an opacity of 0 so that it appears hidden.
 
-Then we give the `busy-container` an absolute position right on top of the btn-busy-text content. Then we position it and give it
+Then we give the `busy-container` an absolute position. Then we position it and give it
 a full width so it appears centered.
 
-I have also added a default height and width, as well as a larger version, these will be specific to your sites button dimensions.
+I have also added a default height and width, as well as a larger version, these will be specific to your site's button dimensions.
 
 ```scss
 
@@ -228,6 +237,3 @@ Finally to see it in action we can make a form and apply the directive to our su
 </div>
 
 ```
-
-<p data-height="203" data-theme-id="19100" data-slug-hash="pjNLEQ" data-default-tab="result" data-user="codyschaaf" class='codepen'>See the Pen <a href='http://codepen.io/codyschaaf/pen/pjNLEQ/'>Button Loader</a> by Cody Schaaf (<a href='http://codepen.io/codyschaaf'>@codyschaaf</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
-<script async src="//assets.codepen.io/assets/embed/ei.js"></script>
