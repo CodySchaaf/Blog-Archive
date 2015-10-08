@@ -115,7 +115,7 @@ that are passed to our directive via the required ngModel directive, and format 
 
 
 ####Parser
-For the parser we take the input value, the value that user has just typed, and we ensure it is not
+For the parser we take the input value, the value that the user has just typed, and we ensure it is not
 empty (null undefined '' ect). If it is empty then we return null, this allows us to ensure only valid
 values make it back to the model. We also want to test the value against a regular expression to ensure
 it is a valid currency. For the current implementation we will use a regexp that allows both positive and negative
@@ -123,24 +123,23 @@ currency values. The regex `negativeNumberPattern = /^(?:-\$|\$-|-|\$)?[0-9,]+(?
 $ and/or - in any order, then matches any number of numbers and commas, and finally matches decimal point followed
 by any number of additional numbers.
 
-After we validate the input we add we need to break it up into its components. We split the input at
-the decimal point. This allows us to add commas to the first component, and leave the second part unchanged.
+After we validate the input we need to break the number up into its components. We split the input at
+the decimal point. This allows us to add commas to the integer component, and leave the deimal part unchanged.
 
 In order to add the commas we want to utilize number's toLocalString method. For example this will convert
-number 1000 to the string 1,000. In my code I call addCommasToString, which is my browser compatible version
-of to local string. All browsers handle the decimal places differently, so we stripped them off to handle
-them ourselves.
+number 1000 to the string 1,000. In my code I call addCommasToString, which is my browser compatible version (Located on the
+Str class) of to local string. All browsers handle the decimal places differently, so we stripped them off to handle ourselves.
 
 After we have added the commas we need to see if we need to update the view value. To check this we sanitize
 the input value and the formatted value. All the sanitation does is strip any character that is not a number
 or a comma. This is because we are looking to only add commas to our users number, so that is the only change
-we care about. After comparing these values, if we find they do not match, we append the decimal places and any
-prefix (such as $) by calling `reassembleInput` and pass that to `$setViewValue` to update the models display value. Finally we render any changes
-to the viewValue.
+we care about. After comparing these values, if we find they do not match we append the decimal places and prepend any
+prefix (such as $) by calling `reassembleInput` and pass that to `$setViewValue` to update the models display value.
+Finally we render any changes to the viewValue.
 
 `$setViewValue` will now call the parser again to ensure the correct value is passed to the model. This is a bit
-weird, but allows for the smoothest update of the dom while keeping the model in sync as well as keeping the
-user happy. This is the reason for the `sanitizeNumberAsString` check, which will ensure this loop only executes
+weird, but allows for the smoothest update of the dom while keeping the model in sync as well as providing a very smooth
+experience for the user. This is the reason for the `sanitizeNumberAsString` check, which will ensure this loop only executes
 twice for every model change. Finally we return the value that should be stored in the model by calling `stringToFloat`
 which turns the string value from the input into a number.
 
@@ -148,7 +147,7 @@ which turns the string value from the input into a number.
 
 The formatter is a bit simpler. Since its job is updating the view value with its return value, all we have
 to do is return the formatted value. In the formatter we want to always ensure the value the backend has is
-displayed in the view, not returning null if the value is bad for example. This is because we want to prevent
+displayed in the view, not returning null if the value is bad for example as we did above. This is because we want to prevent
 the values from getting out of sync, and allow the user to fix any bad value. Then we call `addCommasToString` on the integer part of
 the number, and finally return the reconstructed number.
 
@@ -257,6 +256,7 @@ var Link = (function () {
 
 ```
 </div>
+
 All together we have
 
 <div data-toggle></div>
@@ -351,9 +351,9 @@ var Link = (function () {
 
 </div>
 
-Now lets add some model validation to our directive. A simpel ng-require can handle the
+Now lets add some model validation to our directive. A simple ng-require can handle the
 require validation for the directive, but to prevent users of our directive from having to
-implement their own pattern validation (as well as allowing us to add custome patterns later),
+implement their own pattern validation (as well as allowing us to add custom patterns later),
 we will implement a simple pattern validator.
 
 Our angular models have another array on them called `$validators` that will store
