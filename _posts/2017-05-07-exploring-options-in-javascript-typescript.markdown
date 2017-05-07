@@ -6,6 +6,10 @@ comments: true
 categories: typescript options
 ---
 
+To use this cs-options library you can bower install or npm install the `cs-option`
+package and require Option via `import {Option} from 'cs-option'`. Check out the readme on
+[GitHub](https://github.com/CodySchaaf/CsOption).
+
 <div data-toggle></div>
 <div data-toggle-TS-JS>
 
