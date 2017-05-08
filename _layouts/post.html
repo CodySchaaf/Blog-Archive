@@ -24,6 +24,7 @@ layout: default
       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
   </script>
+  <script src="https://embed.runkit.com"></script>
   <script type="text/javascript">
     (function() {
       var hiddenClass = ' toggle-hidden';
@@ -59,5 +60,47 @@ layout: default
       });
     })()
   </script>
+    <script type="text/javascript">
+        (function() {
+            var hiddenClass = ' toggle-hidden';
+            var dataBlocks = document.querySelectorAll('[data-toggle-RunKit]');
+            [].forEach.call(dataBlocks, function(el) {
+            	var repl = document.createElement("div");
+            	var toggle = document.createElement("div");
+            	var code = document.createElement("div");
+            	toggle.setAttribute("data-toggle-runkit-button", true);
+                code.setAttribute("data-toggle-runkit-code", true);
+                repl.setAttribute("data-toggle-runkit-iframe", true);
+            	code.innerHTML = el.innerHTML;
+            	var text = el.innerText;
+            	el.innerHTML = "";
+            	el.appendChild(repl);
+            	el.appendChild(toggle);
+            	el.appendChild(code);
+                toggle.innerHTML = 'Try in REPL';
+                toggle.className = 'link';
+                repl.className += hiddenClass;
+                function setHeight(target) {
+                    var style = getComputedStyle(target);
+                    el.style.minHeight = parseInt(style.marginBottom) + target.clientHeight + "px";
+                }
+                var notebook = RunKit.createNotebook({
+                    // the parent element for the new notebook
+                    element: repl,
+
+                    // specify the source of the notebook
+                    source: text
+                });
+                setHeight(code);
+                toggle.addEventListener('click', function() {
+                    setHeight(repl);
+                    repl.className = repl.className.replace(hiddenClass, '');
+                    toggle.className += hiddenClass;
+                    code.className += hiddenClass;
+                });
+
+            });
+        })()
+    </script>
   <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 </div>

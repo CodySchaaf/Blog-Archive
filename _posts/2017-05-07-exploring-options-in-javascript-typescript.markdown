@@ -6,9 +6,61 @@ comments: true
 categories: typescript options
 ---
 
-To use this cs-options library you can bower install or npm install the `cs-option`
-package and require Option via `import {Option} from 'cs-option'`. Check out the readme on
+
+
+<!-- anywhere else on your page -->
+<div id="my-element">
+function foo()
+{
+    return "hello world"
+}
+
+foo();
+</div>
+
+## Why TypeScript and Options
+
+For the past few years at [SigFig](www.sigfig.com) we have been using [TypeScript](http://www.typescriptlang.org/), it makes refactoring
+and working with a large code base/large team a lot more simple. A large variety of bugs
+can be caught during the build phase allowing [CI](https://en.wikipedia.org/wiki/Continuous_integration)
+to reject the pull request. Another great tool--and the subject of this post--has been our Option library.
+The build will break if you try and use a value that may be undefined without unwrapping it, or if an method signature
+was changed and some callers are incorrectly using it.
+
+Options allow for a stricter api, and ensure the user is ready for null return values. They also keep with the
+traditional iterator apis, which allows for nice duck typing and a consistent functional programming approach.
+You can think of an option similarly to an array with 0 or 1 value. You can then either map over the value, forEach
+it, and even check if it contains a value. While we don't have to worry about methods throwing exception when empty
+like in many other languages, it is still use full in javascript when dealing with undefined returned values.
+
+Languages like [Scala](https://www.scala-lang.org/api/current/scala/Option.html),
+who treat Options as first class, for example would return options for the following
+similar javascript methods:
+
+```js
+Array.prototype.pop // See List.tailOption
+Array.prototype.find // See List.find
+Object[Key] // See Map.get
+```
+
+This requires the caller to "unwrap" the option if they want to use it and always be prepared to handle the null
+possibility.
+
+Method signatures will also often require options to allow for cleaner internal code. If a parameter is optional
+it will be an option and the internal code can handle it with a more functional approach instead of `if` statements. The
+biggest advantage here is if someone modifies this internal code they will not make the mistake of using an optional
+parameter without checking its availability first.
+
+For more information on scala options check out this guide to [The Option Type](http://danielwestheide.com/blog/2012/12/19/the-neophytes-guide-to-scala-part-5-the-option-type.html).
+
+## The cs-options Library
+
+If you would like to include an options library in your code `cs-options` can be included with `bower install cs-option`
+or `npm instal cs-option` package and require Option via `import {Option} from 'cs-option'`. Check out the readme on
 [GitHub](https://github.com/CodySchaaf/CsOption).
+
+Below is a fairly contrived example with most of the methods currently offered by this library. Which I will break down in
+the following sections.
 
 <div data-toggle></div>
 <div data-toggle-TS-JS>
@@ -219,6 +271,27 @@ var Groomer = (function () {
     return Groomer;
 }());
 
+
+```
+
+</div>
+
+
+## How to make an Option
+
+You can make an option from an existing value with `Option.fromNullable` or `Option.of`, and you can make
+an empty option with `Option.absent`
+
+<div data-toggle-RunKit>
+```js
+const Option = require('cs-option');
+
+const options = {
+    optionA: Option.fromNullable(1),
+    optionB: Option.fromNullable(null),
+    optionC: Option.of(1),
+    optionD: Option.absent()
+}
 
 ```
 

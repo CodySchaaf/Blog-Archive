@@ -239,14 +239,22 @@
 	.toggle-hidden {
 
 	}
-	[data-toggle] {
+	[data-toggle], [data-toggle-runkit-button] {
 		margin-bottom: -30px;
 		position: relative;
 		z-index: 2;
+        transition: opacity .4s ease-in-out;
+        &.toggle-hidden {
+            opacity: 0;
+        }
 	}
-	[data-toggle-ts-js] {
+    [data-toggle-runkit].toggle-hidden {
+        opacity: 0;
+    }
+
+	[data-toggle-ts-js], [data-toggle-runkit] {
 		position: relative;
-		transition: height .4s ease-in-out;
+		transition: height .4s ease-in-out, min-height .4s ease-in-out;
 		.code-highlight-figure {
 			tab-size: 4;
 			width: 100%;
@@ -263,6 +271,22 @@
 				}
 			}
 		}
+        [data-toggle-runkit-iframe] {
+            z-index: 10;
+            position: relative !important;
+        }
+        [data-toggle-runkit-code], [data-toggle-runkit-button], [data-toggle-runkit-iframe] {
+            &.toggle-hidden {
+                opacity: 0;
+                visibility: hidden;
+            }
+            tab-size: 4;
+            width: 100%;
+            transition: opacity .4s ease-in-out, visibility 0s ease-in-out .4s;
+            margin-top: 0px;
+            position: absolute;
+            top: 0;
+        }
 	}
 
 	em {
