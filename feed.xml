@@ -6,15 +6,63 @@
 </description>
     <link>http://codyschaaf.com/</link>
     <atom:link href="http://codyschaaf.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 07 May 2017 12:08:58 -0700</pubDate>
-    <lastBuildDate>Sun, 07 May 2017 12:08:58 -0700</lastBuildDate>
+    <pubDate>Sun, 07 May 2017 21:10:14 -0700</pubDate>
+    <lastBuildDate>Sun, 07 May 2017 21:10:14 -0700</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
     
       <item>
         <title>Exploring Options in Javascript/TypeScript</title>
-        <description>&lt;p&gt;To use this cs-options library you can bower install or npm install the &lt;code&gt;cs-option&lt;/code&gt;
-package and require Option via &lt;code&gt;import {Option} from &#39;cs-option&#39;&lt;/code&gt;. Check out the readme on
+        <description>&lt;!-- anywhere else on your page --&gt;
+&lt;div id=&quot;my-element&quot;&gt;
+function foo()
+{
+    return &quot;hello world&quot;
+}
+
+foo();
+&lt;/div&gt;
+
+&lt;h2 id=&quot;why-typescript-and-options&quot;&gt;Why TypeScript and Options&lt;/h2&gt;
+
+&lt;p&gt;For the past few years at &lt;a href=&quot;www.sigfig.com&quot;&gt;SigFig&lt;/a&gt; we have been using &lt;a href=&quot;http://www.typescriptlang.org/&quot;&gt;TypeScript&lt;/a&gt;, it makes refactoring
+and working with a large code base/large team a lot more simple. A large variety of bugs
+can be caught during the build phase allowing &lt;a href=&quot;https://en.wikipedia.org/wiki/Continuous_integration&quot;&gt;CI&lt;/a&gt;
+to reject the pull request. Another great tool–and the subject of this post–has been our Option library.
+The build will break if you try and use a value that may be undefined without unwrapping it, or if an method signature
+was changed and some callers are incorrectly using it.&lt;/p&gt;
+
+&lt;p&gt;Options allow for a stricter api, and ensure the user is ready for null return values. They also keep with the
+traditional iterator apis, which allows for nice duck typing and a consistent functional programming approach.
+You can think of an option similarly to an array with 0 or 1 value. You can then either map over the value, forEach
+it, and even check if it contains a value. While we don’t have to worry about methods throwing exception when empty
+like in many other languages, it is still use full in javascript when dealing with undefined returned values.&lt;/p&gt;
+
+&lt;p&gt;Languages like &lt;a href=&quot;https://www.scala-lang.org/api/current/scala/Option.html&quot;&gt;Scala&lt;/a&gt;,
+who treat Options as first class, for example would return options for the following
+similar javascript methods:&lt;/p&gt;
+
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nb&quot;&gt;Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prototype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;pop&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// See List.tailOption&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nb&quot;&gt;Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prototype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;find&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// See List.find&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nb&quot;&gt;Object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// See Map.get&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+&lt;p&gt;This requires the caller to “unwrap” the option if they want to use it and always be prepared to handle the null
+possibility.&lt;/p&gt;
+
+&lt;p&gt;Method signatures will also often require options to allow for cleaner internal code. If a parameter is optional
+it will be an option and the internal code can handle it with a more functional approach instead of &lt;code&gt;if&lt;/code&gt; statements. The
+biggest advantage here is if someone modifies this internal code they will not make the mistake of using an optional
+parameter without checking its availability first.&lt;/p&gt;
+
+&lt;p&gt;For more information on scala options check out this guide to &lt;a href=&quot;http://danielwestheide.com/blog/2012/12/19/the-neophytes-guide-to-scala-part-5-the-option-type.html&quot;&gt;The Option Type&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-cs-options-library&quot;&gt;The cs-options Library&lt;/h2&gt;
+
+&lt;p&gt;If you would like to include an options library in your code &lt;code&gt;cs-options&lt;/code&gt; can be included with &lt;code&gt;bower install cs-option&lt;/code&gt;
+or &lt;code&gt;npm instal cs-option&lt;/code&gt; package and require Option via &lt;code&gt;import {Option} from &#39;cs-option&#39;&lt;/code&gt;. Check out the readme on
 &lt;a href=&quot;https://github.com/CodySchaaf/CsOption&quot;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Below is a fairly contrived example with most of the methods currently offered by this library. Which I will break down in
+the following sections.&lt;/p&gt;
 
 &lt;div data-toggle=&quot;&quot;&gt;&lt;/div&gt;
 &lt;div data-toggle-ts-js=&quot;&quot;&gt;
@@ -198,6 +246,23 @@ package and require Option via &lt;code&gt;import {Option} from &#39;cs-option&#
 &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;93&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;Groomer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prototype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;groom&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7d;;&lt;/span&gt;
 &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;94&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Groomer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;95&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;p&quot;&gt;&amp;#x7d;());&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+
+&lt;/div&gt;
+
+&lt;h2 id=&quot;how-to-make-an-option&quot;&gt;How to make an Option&lt;/h2&gt;
+
+&lt;p&gt;You can make an option from an existing value with &lt;code&gt;Option.fromNullable&lt;/code&gt; or &lt;code&gt;Option.of&lt;/code&gt;, and you can make
+an empty option with &lt;code&gt;Option.absent&lt;/code&gt;&lt;/p&gt;
+
+&lt;div data-toggle-runkit=&quot;&quot;&gt;
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;kr&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Option&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;cs-option&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;kr&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;options&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;4&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;optionA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Option&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fromNullable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;5&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;optionB&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Option&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;fromNullable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;optionC&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Option&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;of&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;7&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;optionD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Option&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;absent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;8&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
 
 
 &lt;/div&gt;

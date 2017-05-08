@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Exploring Options in Javascript/TypeScript</title>
-  <meta name="description" content="To use this cs-options library you can bower install or npm install the cs-optionpackage and require Option via import {Option} from 'cs-option'. Check out t...">
+  <meta name="description" content="function foo(){    return "hello world"}">
 
   <link rel="stylesheet" href="/css/main.css">
   <link rel="canonical" href="http://codyschaaf.com/typescript/options/2017/05/07/exploring-options-in-javascript-typescript.html">
@@ -60,9 +60,57 @@
   </header>
 
   <article class="post-content">
-    <p>To use this cs-options library you can bower install or npm install the <code>cs-option</code>
-package and require Option via <code>import {Option} from 'cs-option'</code>. Check out the readme on
+    <!-- anywhere else on your page -->
+<div id="my-element">
+function foo()
+{
+    return "hello world"
+}
+
+foo();
+</div>
+
+<h2 id="why-typescript-and-options">Why TypeScript and Options</h2>
+
+<p>For the past few years at <a href="www.sigfig.com">SigFig</a> we have been using <a href="http://www.typescriptlang.org/">TypeScript</a>, it makes refactoring
+and working with a large code base/large team a lot more simple. A large variety of bugs
+can be caught during the build phase allowing <a href="https://en.wikipedia.org/wiki/Continuous_integration">CI</a>
+to reject the pull request. Another great tool–and the subject of this post–has been our Option library.
+The build will break if you try and use a value that may be undefined without unwrapping it, or if an method signature
+was changed and some callers are incorrectly using it.</p>
+
+<p>Options allow for a stricter api, and ensure the user is ready for null return values. They also keep with the
+traditional iterator apis, which allows for nice duck typing and a consistent functional programming approach.
+You can think of an option similarly to an array with 0 or 1 value. You can then either map over the value, forEach
+it, and even check if it contains a value. While we don’t have to worry about methods throwing exception when empty
+like in many other languages, it is still use full in javascript when dealing with undefined returned values.</p>
+
+<p>Languages like <a href="https://www.scala-lang.org/api/current/scala/Option.html">Scala</a>,
+who treat Options as first class, for example would return options for the following
+similar javascript methods:</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">pop</span> <span class="c1">// See List.tailOption</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">find</span> <span class="c1">// See List.find</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nb">Object</span><span class="p">[</span><span class="nx">Key</span><span class="p">]</span> <span class="c1">// See Map.get</span></div></div></pre></div></figure>
+
+<p>This requires the caller to “unwrap” the option if they want to use it and always be prepared to handle the null
+possibility.</p>
+
+<p>Method signatures will also often require options to allow for cleaner internal code. If a parameter is optional
+it will be an option and the internal code can handle it with a more functional approach instead of <code>if</code> statements. The
+biggest advantage here is if someone modifies this internal code they will not make the mistake of using an optional
+parameter without checking its availability first.</p>
+
+<p>For more information on scala options check out this guide to <a href="http://danielwestheide.com/blog/2012/12/19/the-neophytes-guide-to-scala-part-5-the-option-type.html">The Option Type</a>.</p>
+
+<h2 id="the-cs-options-library">The cs-options Library</h2>
+
+<p>If you would like to include an options library in your code <code>cs-options</code> can be included with <code>bower install cs-option</code>
+or <code>npm instal cs-option</code> package and require Option via <code>import {Option} from 'cs-option'</code>. Check out the readme on
 <a href="https://github.com/CodySchaaf/CsOption">GitHub</a>.</p>
+
+<p>Below is a fairly contrived example with most of the methods currently offered by this library. Which I will break down in
+the following sections.</p>
 
 <div data-toggle=""></div>
 <div data-toggle-ts-js="">
@@ -250,6 +298,23 @@ package and require Option via <code>import {Option} from 'cs-option'</code>. Ch
 
 </div>
 
+<h2 id="how-to-make-an-option">How to make an Option</h2>
+
+<p>You can make an option from an existing value with <code>Option.fromNullable</code> or <code>Option.of</code>, and you can make
+an empty option with <code>Option.absent</code></p>
+
+<div data-toggle-runkit="">
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">const</span> <span class="nx">Option</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;cs-option&#39;</span><span class="p">);</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">const</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">optionA</span><span class="o">:</span> <span class="nx">Option</span><span class="p">.</span><span class="nx">fromNullable</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">optionB</span><span class="o">:</span> <span class="nx">Option</span><span class="p">.</span><span class="nx">fromNullable</span><span class="p">(</span><span class="kc">null</span><span class="p">),</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">optionC</span><span class="o">:</span> <span class="nx">Option</span><span class="p">.</span><span class="nx">of</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">optionD</span><span class="o">:</span> <span class="nx">Option</span><span class="p">.</span><span class="nx">absent</span><span class="p">()</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
+
+
+</div>
+
   </article>
 
   <div id="disqus_thread"></div>
@@ -264,6 +329,7 @@ package and require Option via <code>import {Option} from 'cs-option'</code>. Ch
       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
   </script>
+  <script src="https://embed.runkit.com"></script>
   <script type="text/javascript">
     (function() {
       var hiddenClass = ' toggle-hidden';
@@ -299,6 +365,48 @@ package and require Option via <code>import {Option} from 'cs-option'</code>. Ch
       });
     })()
   </script>
+    <script type="text/javascript">
+        (function() {
+            var hiddenClass = ' toggle-hidden';
+            var dataBlocks = document.querySelectorAll('[data-toggle-RunKit]');
+            [].forEach.call(dataBlocks, function(el) {
+            	var repl = document.createElement("div");
+            	var toggle = document.createElement("div");
+            	var code = document.createElement("div");
+            	toggle.setAttribute("data-toggle-runkit-button", true);
+                code.setAttribute("data-toggle-runkit-code", true);
+                repl.setAttribute("data-toggle-runkit-iframe", true);
+            	code.innerHTML = el.innerHTML;
+            	var text = el.innerText;
+            	el.innerHTML = "";
+            	el.appendChild(repl);
+            	el.appendChild(toggle);
+            	el.appendChild(code);
+                toggle.innerHTML = 'Try in REPL';
+                toggle.className = 'link';
+                repl.className += hiddenClass;
+                function setHeight(target) {
+                    var style = getComputedStyle(target);
+                    el.style.minHeight = parseInt(style.marginBottom) + target.clientHeight + "px";
+                }
+                var notebook = RunKit.createNotebook({
+                    // the parent element for the new notebook
+                    element: repl,
+
+                    // specify the source of the notebook
+                    source: text
+                });
+                setHeight(code);
+                toggle.addEventListener('click', function() {
+                    setHeight(repl);
+                    repl.className = repl.className.replace(hiddenClass, '');
+                    toggle.className += hiddenClass;
+                    code.className += hiddenClass;
+                });
+
+            });
+        })()
+    </script>
   <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 </div>
 

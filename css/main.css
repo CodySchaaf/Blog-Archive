@@ -323,29 +323,51 @@ img.pull-right {
     @media screen and (max-width: 800px) {
       .post-content h4 {
         font-size: 18px; } }
-  .post-content [data-toggle] {
+  .post-content [data-toggle], .post-content [data-toggle-runkit-button] {
     margin-bottom: -30px;
     position: relative;
-    z-index: 2; }
-  .post-content [data-toggle-ts-js] {
+    z-index: 2;
+    -webkit-transition: opacity .4s ease-in-out;
+            transition: opacity .4s ease-in-out; }
+    .post-content [data-toggle].toggle-hidden, .post-content [data-toggle-runkit-button].toggle-hidden {
+      opacity: 0; }
+  .post-content [data-toggle-runkit].toggle-hidden {
+    opacity: 0; }
+  .post-content [data-toggle-ts-js], .post-content [data-toggle-runkit] {
     position: relative;
-    -webkit-transition: height .4s ease-in-out;
-            transition: height .4s ease-in-out; }
-    .post-content [data-toggle-ts-js] .code-highlight-figure {
+    -webkit-transition: height .4s ease-in-out, min-height .4s ease-in-out;
+            transition: height .4s ease-in-out, min-height .4s ease-in-out; }
+    .post-content [data-toggle-ts-js] .code-highlight-figure, .post-content [data-toggle-runkit] .code-highlight-figure {
       -moz-tab-size: 4;
         -o-tab-size: 4;
            tab-size: 4;
       width: 100%;
       -webkit-transition: opacity .4s ease-in-out;
               transition: opacity .4s ease-in-out; }
-      .post-content [data-toggle-ts-js] .code-highlight-figure.toggle-hidden {
+      .post-content [data-toggle-ts-js] .code-highlight-figure.toggle-hidden, .post-content [data-toggle-runkit] .code-highlight-figure.toggle-hidden {
         opacity: 0; }
-      .post-content [data-toggle-ts-js] .code-highlight-figure ~ .code-highlight-figure {
+      .post-content [data-toggle-ts-js] .code-highlight-figure ~ .code-highlight-figure, .post-content [data-toggle-runkit] .code-highlight-figure ~ .code-highlight-figure {
         margin-top: 0px;
         position: absolute;
         top: 0; }
-        .post-content [data-toggle-ts-js] .code-highlight-figure ~ .code-highlight-figure.toggle-hidden {
+        .post-content [data-toggle-ts-js] .code-highlight-figure ~ .code-highlight-figure.toggle-hidden, .post-content [data-toggle-runkit] .code-highlight-figure ~ .code-highlight-figure.toggle-hidden {
           opacity: 0; }
+    .post-content [data-toggle-ts-js] [data-toggle-runkit-iframe], .post-content [data-toggle-runkit] [data-toggle-runkit-iframe] {
+      z-index: 10;
+      position: relative !important; }
+    .post-content [data-toggle-ts-js] [data-toggle-runkit-code], .post-content [data-toggle-ts-js] [data-toggle-runkit-button], .post-content [data-toggle-ts-js] [data-toggle-runkit-iframe], .post-content [data-toggle-runkit] [data-toggle-runkit-code], .post-content [data-toggle-runkit] [data-toggle-runkit-button], .post-content [data-toggle-runkit] [data-toggle-runkit-iframe] {
+      -moz-tab-size: 4;
+        -o-tab-size: 4;
+           tab-size: 4;
+      width: 100%;
+      -webkit-transition: opacity .4s ease-in-out, visibility 0s ease-in-out .4s;
+              transition: opacity .4s ease-in-out, visibility 0s ease-in-out .4s;
+      margin-top: 0px;
+      position: absolute;
+      top: 0; }
+      .post-content [data-toggle-ts-js] [data-toggle-runkit-code].toggle-hidden, .post-content [data-toggle-ts-js] [data-toggle-runkit-button].toggle-hidden, .post-content [data-toggle-ts-js] [data-toggle-runkit-iframe].toggle-hidden, .post-content [data-toggle-runkit] [data-toggle-runkit-code].toggle-hidden, .post-content [data-toggle-runkit] [data-toggle-runkit-button].toggle-hidden, .post-content [data-toggle-runkit] [data-toggle-runkit-iframe].toggle-hidden {
+        opacity: 0;
+        visibility: hidden; }
   .post-content em {
     font-size: 14px;
     color: gray; }
