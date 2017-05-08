@@ -19,7 +19,8 @@ toggle `btn-busy="isProcessing"`.
 <button ng-click="submit()" btn-busy="isSubmitting" ng-disabled="isSubmitting">Submit</button>
 ```
 
-Optionally you can add an ng-disabled to prevent additional clicks while the form is processing. Typically I'm against ng-disabled, but I think this
+Optionally you can add an [ng-disabled](https://docs.angularjs.org/api/ng/directive/ngDisabled)
+to prevent additional clicks while the form is processing. Typically I'm against ng-disabled, but I think this
 is a great use case for it.
 
 #btnBusy Directive
@@ -29,7 +30,8 @@ By having `busy: "=btnBusy"` in the scope definition angular will look for btn-b
 but it will make the variable available for usage in the directive's template via the busy variable for clarity. This allows our
 directive to be compact and not require an additional attribute.
 
-Finally we want transclude true to be set. Transclude can be a bit scary at first, but all it does is it allows for the directive
+Finally we want [transclude](https://docs.angularjs.org/api/ng/directive/ngTransclude)
+true to be set. Transclude can be a bit scary at first, but all it does is it allows for the directive
 to extract the content in the directive instance (markup that is between the opening and closing `button` tags, which is 'Submit' in the example above), and
 inject that at some point into the directive's template. This point is specified by the ng-transclude tag.
 
@@ -151,8 +153,9 @@ animation to repeat itself. We define a boarder as well as a border radius to ge
 We also need to override the animation with a 0s animation once ng-hide-add class is added to the element, but only if you have
 the ngAnimate module installed.
 
-For a quick aside on animations which only apply if you have the ngAnimate module installed,
-once the scope variable becomes true for ng-hide angular will apply an `ng-hide-add` class as well as an `ng-animate`.
+For a quick aside on animations which only apply if you have the [ngAnimate](https://docs.angularjs.org/api/ngAnimate) module installed,
+once the scope variable becomes true for [ng-hide](https://docs.angularjs.org/api/ng/directive/ngHide)
+[angular will apply an `ng-hide-add` class as well as an `ng-animate`](https://docs.angularjs.org/api/ng/directive/ngHide#a-note-about-animations-with-nghide-).
 After this class is added it will scan the element for any transitions or animations. It will store the specified time, and then
 it will add the `ng-hide-add-active` and `ng-hide` classes. Once these classes are applied it will wait for the above
 stored time until it removes the element from view by removing the ng-animate class which was blocking the affects of ng-hide.

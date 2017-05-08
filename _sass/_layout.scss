@@ -258,10 +258,10 @@
 		.code-highlight-figure {
 			tab-size: 4;
 			width: 100%;
+			transition: opacity .4s ease-in-out;
 			&.toggle-hidden {
 				opacity: 0;
 			}
-			transition: opacity .4s ease-in-out;
 			~ .code-highlight-figure {
 				margin-top: 0px;
 				position: absolute;
@@ -271,10 +271,6 @@
 				}
 			}
 		}
-        [data-toggle-runkit-iframe] {
-            z-index: 10;
-            position: relative !important;
-        }
         [data-toggle-runkit-code], [data-toggle-runkit-button], [data-toggle-runkit-iframe] {
             &.toggle-hidden {
                 opacity: 0;
@@ -286,6 +282,11 @@
             margin-top: 0px;
             position: absolute;
             top: 0;
+        }
+        [data-toggle-runkit-iframe] {
+            z-index: 10;
+            position: relative !important;
+            transition: opacity .4s ease-in-out;
         }
 	}
 

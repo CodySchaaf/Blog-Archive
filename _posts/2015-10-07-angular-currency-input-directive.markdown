@@ -27,7 +27,8 @@ file directly into your project, or follow along and build your own!
 
 To start we will define the csCurrencyInput directive. Note the cs prefix is used to prevent collisions with
 standard HTML attributes. This directive will require ngModel to allow it to hook into the input element's
-ngModelController. As well as a Link function definition which will allow us to work with the ngModelController.
+[ngModelController](https://docs.angularjs.org/api/ng/type/ngModel.NgModelController).
+As well as a Link function definition which will allow us to work with the ngModelController.
 
 <div data-toggle></div>
 <div data-toggle-TS-JS>
@@ -68,8 +69,10 @@ Any method called on the Str class can be found [here](https://github.com/CodySc
 I Will go over some of the more complicated methods at the end.
 
 To start we need to add a new parser and formatter to our ngModelController. Typically you want push parsers
-onto ngModelController's $parsers array since they are run in order, and you want to unshift your formatter onto
-the $formatters array since formatters are run in reverse order. This is something you'd need to think about
+onto [ngModelController's $parsers](https://docs.angularjs.org/api/ng/type/ngModel.NgModelController#$parsers)
+array since they are run in order, and you want to unshift your formatter onto
+the [$formatters](https://docs.angularjs.org/api/ng/type/ngModel.NgModelController#$formatters)
+array since formatters are run in reverse order. This is something you'd need to think about
 whenever adding a new function since it all depends on the implementation.
 
 ###Priority
@@ -93,7 +96,8 @@ a number. This will mean that the internal ngModelController will have a viewVal
 a modelValue that is a number. All you will know about it the model value that will be passed back to
 your ngModel expression as a number.
 
-Parsers are typically triggered by a call to $setViewValue, which is called for you when using an input
+Parsers are typically triggered by a call to [$setViewValue](https://docs.angularjs.org/api/ng/type/ngModel.NgModelController#$setViewValue),
+which is called for you when using an input
 element.
 
 For the csCurrencyInput directive we will want to add a parser that converts the string to a number
@@ -115,6 +119,7 @@ that are passed to our directive via the required ngModel directive, and format 
 
 
 ####Parser
+
 For the parser we take the input value, the value that the user has just typed, and we ensure it is not
 empty (null undefined '' ect). If it is empty then we return null, this allows us to ensure only valid
 values make it back to the model. We also want to test the value against a regular expression to ensure
@@ -126,7 +131,8 @@ by any number of additional numbers.
 After we validate the input we need to break the number up into its components. We split the input at
 the decimal point. This allows us to add commas to the integer component, and leave the deimal part unchanged.
 
-In order to add the commas we want to utilize number's toLocalString method. For example this will convert
+In order to add the commas we want to utilize [number's toLocalString method](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString).
+For example this will convert
 number 1000 to the string 1,000. In my code I call addCommasToString, which is my browser compatible version (Located on the
 Str class) of to local string. All browsers handle the decimal places differently, so we stripped them off to handle ourselves.
 
@@ -356,8 +362,8 @@ require validation for the directive, but to prevent users of our directive from
 implement their own pattern validation (as well as allowing us to add custom patterns later),
 we will implement a simple pattern validator.
 
-Our angular models have another array on them called `$validators` that will store
-any validators that you want to run on your model when the value changes. These validators will
+Our angular models have another array on them called [`$validators`](https://docs.angularjs.org/api/ng/type/ngModel.NgModelController#$validators)
+that will store any validators that you want to run on your model when the value changes. These validators will
 get passed both the modelValue and the viewValue.
 
 Since our model value should be null only if our view value is invalid (see parser above) we will check to

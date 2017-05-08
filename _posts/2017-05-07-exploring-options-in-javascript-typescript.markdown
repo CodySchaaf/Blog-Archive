@@ -16,7 +16,8 @@ The build will break if you try and use a value that may be undefined without un
 was changed and some callers are incorrectly using it.
 
 Options allow for a stricter api, and ensure the user is ready for null return values. They also keep with the
-traditional iterator apis, which allows for nice duck typing and a consistent functional programming approach.
+traditional iterator apis, which allows for nice [polymorphism](https://en.wikipedia.org/wiki/Polymorphism_(computer_science))
+and a consistent functional programming approach.
 You can think of an option similarly to an array with 0 or 1 value. You can then either map over the value, forEach
 it, and even check if it contains a value. While we don't have to worry about methods throwing exception when empty
 like in many other languages, it is still use full in javascript when dealing with undefined returned values.

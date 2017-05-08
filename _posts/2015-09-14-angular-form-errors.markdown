@@ -103,9 +103,11 @@ it will emit an event. This event is composed of the `REVEAL_ERRORS_EVENT` name 
 to the form because we could have these setups nested and we want to ensure that we are talking to the correct form. We use $emit instead
 of broadcast because the submit button will be nested inside the form and emit propagates up the scope.
 
-This works because of Angular's awesome form handling. As long as you attach the appropriate ng-modal validating directives
+This works because of [Angular's awesome form handling](https://docs.angularjs.org/api/ng/type/form.FormController).
+As long as you attach the appropriate [ng-model validating directives](https://docs.angularjs.org/api/ng/directive/ngModel)
 to your inputs, this will be able to tell if the form is valid. This is because a form is only valid if all of the children
-ng-models are valid. So--for example--by adding ng-required to all fields, the form will only be valid if all fields are answered and thus
+ng-models are valid. So--for example--by adding [ng-required](https://docs.angularjs.org/api/ng/directive/ngRequired)
+to all fields, the form will only be valid if all fields are answered and thus
 this will only submit if all fields are answered.
 
 <div data-toggle></div>
@@ -369,7 +371,8 @@ polish by again applying the valid styles if the element is focused.
 }
 ```
 
-Finally lets add some styles to our error messages, that will utilize Angualr's `ng-messages` directive. And tying it all together
+Finally lets add some styles to our error messages, that will utilize [Angualr's `ng-messages` directive](https://docs.angularjs.org/api/ngMessages).
+And tying it all together
 we have:
 
 ```sass
