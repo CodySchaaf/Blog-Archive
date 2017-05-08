@@ -45,13 +45,72 @@ For more information on scala options check out this guide to [The Option Type](
 ## The cs-options Library
 
 If you would like to include an options library in your code `cs-options` can be included with `bower install cs-option`
-or `npm instal cs-option` package and require Option via `import {Option} from 'cs-option'`. Check out the readme on
+or `npm install cs-option` package and require Option via `import {Option} from 'cs-option'`. Check out the readme on
 [GitHub](https://github.com/CodySchaaf/CsOption).
 
-Below is a fairly contrived example with most of the methods currently offered by this library. Which I will break down in
-the following sections.
+I have come up with some pretty contrived examples--about a family and their pet--that I will go over one at a time to discus the different methods, followed
+by the entire example at the <a href="#entire-example" class="link">bottom of this page</a> in both javascript and typescript. The examples will be in TypeScript
+since the options library really shines when it is used with strict typing and reads very similar to javascript, but they will be paired with some javascript repls
+so you can play with them yourself.
 
-<div data-toggle></div>
+## How to make an Option
+
+You can make an option from an existing value with `Option.fromNullable` or `Option.of`, and you can make
+an empty option with `Option.absent`
+
+<div data-toggle-RunKit>
+```js
+const Option = require('cs-option');
+
+const arr = [1]
+
+const options = {
+    optionA: Option.fromNullable(arr.pop()),
+    optionB: Option.fromNullable(arr.pop()),
+    optionC: Option.of(1),
+    optionD: Option.absent()
+}
+
+```
+</div>
+
+
+The method `fromNullable` is typically used to wrap an external method call which returns an untrusted value
+(possibly null). In my example I will use it when popping an element from an array, but could also be paired
+with find, or when reading a value from a map. In this example I want to feed one of my animals and need to
+get food, I want to pop this off the food array so I wrap it in `Option.fromNullable`.
+
+```ts
+ getFood(): Option<number> {
+    return Option.fromNullable(this.food.pop()); // or Option.pop(this.food)
+  }
+```
+
+The method `of` is used when you need to wrap a known value in an option. It will throw an error if the value is undefined.
+In my example I use this to pass a known value to a method that expects an option (since a family might or might not have a pet).
+This is because the parameter is optional, but makes the internal logic simpler when this is an option, as well as when the attribute is
+read it is clear that it could be empty.
+
+```ts
+
+class Family {
+  constructor(public pet: Option<Pet>) {}
+}
+
+new Family(Option.of(blueTheCat));
+
+```
+
+Finally an empty option can be created with `absent`, and should be used in the above example when you don't have a value to
+pass to a method, or assign an attribute.
+
+```ts
+new Family(Option.absent());
+```
+
+## Full Example
+
+<div data-toggle id="entire-example"></div>
 <div data-toggle-TS-JS>
 
 ```ts
@@ -260,27 +319,6 @@ var Groomer = (function () {
     return Groomer;
 }());
 
-
-```
-
-</div>
-
-
-## How to make an Option
-
-You can make an option from an existing value with `Option.fromNullable` or `Option.of`, and you can make
-an empty option with `Option.absent`
-
-<div data-toggle-RunKit>
-```js
-const Option = require('cs-option');
-
-const options = {
-    optionA: Option.fromNullable(1),
-    optionB: Option.fromNullable(null),
-    optionC: Option.of(1),
-    optionD: Option.absent()
-}
 
 ```
 
