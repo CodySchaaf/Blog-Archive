@@ -71,7 +71,8 @@ toggle <code>btn-busy="isProcessing"</code>.</p>
 
 <figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">example usage</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nt">&lt;button</span> <span class="na">ng-click=</span><span class="s">&quot;submit()&quot;</span> <span class="na">btn-busy=</span><span class="s">&quot;isSubmitting&quot;</span> <span class="na">ng-disabled=</span><span class="s">&quot;isSubmitting&quot;</span><span class="nt">&gt;</span>Submit<span class="nt">&lt;/button&gt;</span></div></div></pre></div></figure>
 
-<p>Optionally you can add an ng-disabled to prevent additional clicks while the form is processing. Typically I’m against ng-disabled, but I think this
+<p>Optionally you can add an <a href="https://docs.angularjs.org/api/ng/directive/ngDisabled">ng-disabled</a>
+to prevent additional clicks while the form is processing. Typically I’m against ng-disabled, but I think this
 is a great use case for it.</p>
 
 <h1 id="btnbusy-directive">btnBusy Directive</h1>
@@ -81,7 +82,8 @@ By having <code>busy: "=btnBusy"</code> in the scope definition angular will loo
 but it will make the variable available for usage in the directive’s template via the busy variable for clarity. This allows our
 directive to be compact and not require an additional attribute.</p>
 
-<p>Finally we want transclude true to be set. Transclude can be a bit scary at first, but all it does is it allows for the directive
+<p>Finally we want <a href="https://docs.angularjs.org/api/ng/directive/ngTransclude">transclude</a>
+true to be set. Transclude can be a bit scary at first, but all it does is it allows for the directive
 to extract the content in the directive instance (markup that is between the opening and closing <code>button</code> tags, which is ‘Submit’ in the example above), and
 inject that at some point into the directive’s template. This point is specified by the ng-transclude tag.</p>
 
@@ -187,8 +189,9 @@ animation to repeat itself. We define a boarder as well as a border radius to ge
 We also need to override the animation with a 0s animation once ng-hide-add class is added to the element, but only if you have
 the ngAnimate module installed.</p>
 
-<p>For a quick aside on animations which only apply if you have the ngAnimate module installed,
-once the scope variable becomes true for ng-hide angular will apply an <code>ng-hide-add</code> class as well as an <code>ng-animate</code>.
+<p>For a quick aside on animations which only apply if you have the <a href="https://docs.angularjs.org/api/ngAnimate">ngAnimate</a> module installed,
+once the scope variable becomes true for <a href="https://docs.angularjs.org/api/ng/directive/ngHide">ng-hide</a>
+<a href="https://docs.angularjs.org/api/ng/directive/ngHide#a-note-about-animations-with-nghide-">angular will apply an <code>ng-hide-add</code> class as well as an <code>ng-animate</code></a>.
 After this class is added it will scan the element for any transitions or animations. It will store the specified time, and then
 it will add the <code>ng-hide-add-active</code> and <code>ng-hide</code> classes. Once these classes are applied it will wait for the above
 stored time until it removes the element from view by removing the ng-animate class which was blocking the affects of ng-hide.

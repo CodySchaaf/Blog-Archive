@@ -6,8 +6,8 @@
 </description>
     <link>http://codyschaaf.com/</link>
     <atom:link href="http://codyschaaf.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 07 May 2017 21:12:21 -0700</pubDate>
-    <lastBuildDate>Sun, 07 May 2017 21:12:21 -0700</lastBuildDate>
+    <pubDate>Sun, 07 May 2017 21:38:23 -0700</pubDate>
+    <lastBuildDate>Sun, 07 May 2017 21:38:23 -0700</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
     
       <item>
@@ -22,7 +22,8 @@ The build will break if you try and use a value that may be undefined without un
 was changed and some callers are incorrectly using it.&lt;/p&gt;
 
 &lt;p&gt;Options allow for a stricter api, and ensure the user is ready for null return values. They also keep with the
-traditional iterator apis, which allows for nice duck typing and a consistent functional programming approach.
+traditional iterator apis, which allows for nice &lt;a href=&quot;https://en.wikipedia.org/wiki/Polymorphism_(computer_science)&quot;&gt;polymorphism&lt;/a&gt;
+and a consistent functional programming approach.
 You can think of an option similarly to an array with 0 or 1 value. You can then either map over the value, forEach
 it, and even check if it contains a value. While we don’t have to worry about methods throwing exception when empty
 like in many other languages, it is still use full in javascript when dealing with undefined returned values.&lt;/p&gt;
@@ -289,7 +290,8 @@ file directly into your project, or follow along and build your own!&lt;/p&gt;
 
 &lt;p&gt;To start we will define the csCurrencyInput directive. Note the cs prefix is used to prevent collisions with
 standard HTML attributes. This directive will require ngModel to allow it to hook into the input element’s
-ngModelController. As well as a Link function definition which will allow us to work with the ngModelController.&lt;/p&gt;
+&lt;a href=&quot;https://docs.angularjs.org/api/ng/type/ngModel.NgModelController&quot;&gt;ngModelController&lt;/a&gt;.
+As well as a Link function definition which will allow us to work with the ngModelController.&lt;/p&gt;
 
 &lt;div data-toggle=&quot;&quot;&gt;&lt;/div&gt;
 &lt;div data-toggle-ts-js=&quot;&quot;&gt;
@@ -325,8 +327,10 @@ Any method called on the Str class can be found &lt;a href=&quot;https://github.
 I Will go over some of the more complicated methods at the end.&lt;/p&gt;
 
 &lt;p&gt;To start we need to add a new parser and formatter to our ngModelController. Typically you want push parsers
-onto ngModelController’s $parsers array since they are run in order, and you want to unshift your formatter onto
-the $formatters array since formatters are run in reverse order. This is something you’d need to think about
+onto &lt;a href=&quot;https://docs.angularjs.org/api/ng/type/ngModel.NgModelController#$parsers&quot;&gt;ngModelController’s $parsers&lt;/a&gt;
+array since they are run in order, and you want to unshift your formatter onto
+the &lt;a href=&quot;https://docs.angularjs.org/api/ng/type/ngModel.NgModelController#$formatters&quot;&gt;$formatters&lt;/a&gt;
+array since formatters are run in reverse order. This is something you’d need to think about
 whenever adding a new function since it all depends on the implementation.&lt;/p&gt;
 
 &lt;h3 id=&quot;priority&quot;&gt;Priority&lt;/h3&gt;
@@ -350,7 +354,8 @@ a number. This will mean that the internal ngModelController will have a viewVal
 a modelValue that is a number. All you will know about it the model value that will be passed back to
 your ngModel expression as a number.&lt;/p&gt;
 
-&lt;p&gt;Parsers are typically triggered by a call to $setViewValue, which is called for you when using an input
+&lt;p&gt;Parsers are typically triggered by a call to &lt;a href=&quot;https://docs.angularjs.org/api/ng/type/ngModel.NgModelController#$setViewValue&quot;&gt;$setViewValue&lt;/a&gt;,
+which is called for you when using an input
 element.&lt;/p&gt;
 
 &lt;p&gt;For the csCurrencyInput directive we will want to add a parser that converts the string to a number
@@ -371,6 +376,7 @@ that are passed to our directive via the required ngModel directive, and format 
 &lt;h1 id=&quot;implementation&quot;&gt;Implementation&lt;/h1&gt;
 
 &lt;h4 id=&quot;parser&quot;&gt;Parser&lt;/h4&gt;
+
 &lt;p&gt;For the parser we take the input value, the value that the user has just typed, and we ensure it is not
 empty (null undefined ‘’ ect). If it is empty then we return null, this allows us to ensure only valid
 values make it back to the model. We also want to test the value against a regular expression to ensure
@@ -382,7 +388,8 @@ by any number of additional numbers.&lt;/p&gt;
 &lt;p&gt;After we validate the input we need to break the number up into its components. We split the input at
 the decimal point. This allows us to add commas to the integer component, and leave the deimal part unchanged.&lt;/p&gt;
 
-&lt;p&gt;In order to add the commas we want to utilize number’s toLocalString method. For example this will convert
+&lt;p&gt;In order to add the commas we want to utilize &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString&quot;&gt;number’s toLocalString method&lt;/a&gt;.
+For example this will convert
 number 1000 to the string 1,000. In my code I call addCommasToString, which is my browser compatible version (Located on the
 Str class) of to local string. All browsers handle the decimal places differently, so we stripped them off to handle ourselves.&lt;/p&gt;
 
@@ -580,8 +587,8 @@ require validation for the directive, but to prevent users of our directive from
 implement their own pattern validation (as well as allowing us to add custom patterns later),
 we will implement a simple pattern validator.&lt;/p&gt;
 
-&lt;p&gt;Our angular models have another array on them called &lt;code&gt;$validators&lt;/code&gt; that will store
-any validators that you want to run on your model when the value changes. These validators will
+&lt;p&gt;Our angular models have another array on them called &lt;a href=&quot;https://docs.angularjs.org/api/ng/type/ngModel.NgModelController#$validators&quot;&gt;&lt;code&gt;$validators&lt;/code&gt;&lt;/a&gt;
+that will store any validators that you want to run on your model when the value changes. These validators will
 get passed both the modelValue and the viewValue.&lt;/p&gt;
 
 &lt;p&gt;Since our model value should be null only if our view value is invalid (see parser above) we will check to
@@ -673,7 +680,8 @@ toggle &lt;code&gt;btn-busy=&quot;isProcessing&quot;&lt;/code&gt;.&lt;/p&gt;
 
 &lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;figcaption class=&quot;code-highlight-caption&quot;&gt;&lt;span class=&quot;code-highlight-caption-title&quot;&gt;example usage&lt;/span&gt;&lt;/figcaption&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-click=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;submit()&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;btn-busy=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;isSubmitting&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-disabled=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;isSubmitting&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Submit&lt;span class=&quot;nt&quot;&gt;&amp;lt;/button&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
 
-&lt;p&gt;Optionally you can add an ng-disabled to prevent additional clicks while the form is processing. Typically I’m against ng-disabled, but I think this
+&lt;p&gt;Optionally you can add an &lt;a href=&quot;https://docs.angularjs.org/api/ng/directive/ngDisabled&quot;&gt;ng-disabled&lt;/a&gt;
+to prevent additional clicks while the form is processing. Typically I’m against ng-disabled, but I think this
 is a great use case for it.&lt;/p&gt;
 
 &lt;h1 id=&quot;btnbusy-directive&quot;&gt;btnBusy Directive&lt;/h1&gt;
@@ -683,7 +691,8 @@ By having &lt;code&gt;busy: &quot;=btnBusy&quot;&lt;/code&gt; in the scope defin
 but it will make the variable available for usage in the directive’s template via the busy variable for clarity. This allows our
 directive to be compact and not require an additional attribute.&lt;/p&gt;
 
-&lt;p&gt;Finally we want transclude true to be set. Transclude can be a bit scary at first, but all it does is it allows for the directive
+&lt;p&gt;Finally we want &lt;a href=&quot;https://docs.angularjs.org/api/ng/directive/ngTransclude&quot;&gt;transclude&lt;/a&gt;
+true to be set. Transclude can be a bit scary at first, but all it does is it allows for the directive
 to extract the content in the directive instance (markup that is between the opening and closing &lt;code&gt;button&lt;/code&gt; tags, which is ‘Submit’ in the example above), and
 inject that at some point into the directive’s template. This point is specified by the ng-transclude tag.&lt;/p&gt;
 
@@ -789,8 +798,9 @@ animation to repeat itself. We define a boarder as well as a border radius to ge
 We also need to override the animation with a 0s animation once ng-hide-add class is added to the element, but only if you have
 the ngAnimate module installed.&lt;/p&gt;
 
-&lt;p&gt;For a quick aside on animations which only apply if you have the ngAnimate module installed,
-once the scope variable becomes true for ng-hide angular will apply an &lt;code&gt;ng-hide-add&lt;/code&gt; class as well as an &lt;code&gt;ng-animate&lt;/code&gt;.
+&lt;p&gt;For a quick aside on animations which only apply if you have the &lt;a href=&quot;https://docs.angularjs.org/api/ngAnimate&quot;&gt;ngAnimate&lt;/a&gt; module installed,
+once the scope variable becomes true for &lt;a href=&quot;https://docs.angularjs.org/api/ng/directive/ngHide&quot;&gt;ng-hide&lt;/a&gt;
+&lt;a href=&quot;https://docs.angularjs.org/api/ng/directive/ngHide#a-note-about-animations-with-nghide-&quot;&gt;angular will apply an &lt;code&gt;ng-hide-add&lt;/code&gt; class as well as an &lt;code&gt;ng-animate&lt;/code&gt;&lt;/a&gt;.
 After this class is added it will scan the element for any transitions or animations. It will store the specified time, and then
 it will add the &lt;code&gt;ng-hide-add-active&lt;/code&gt; and &lt;code&gt;ng-hide&lt;/code&gt; classes. Once these classes are applied it will wait for the above
 stored time until it removes the element from view by removing the ng-animate class which was blocking the affects of ng-hide.
@@ -965,9 +975,11 @@ it will emit an event. This event is composed of the &lt;code&gt;REVEAL_ERRORS_E
 to the form because we could have these setups nested and we want to ensure that we are talking to the correct form. We use $emit instead
 of broadcast because the submit button will be nested inside the form and emit propagates up the scope.&lt;/p&gt;
 
-&lt;p&gt;This works because of Angular’s awesome form handling. As long as you attach the appropriate ng-modal validating directives
+&lt;p&gt;This works because of &lt;a href=&quot;https://docs.angularjs.org/api/ng/type/form.FormController&quot;&gt;Angular’s awesome form handling&lt;/a&gt;.
+As long as you attach the appropriate &lt;a href=&quot;https://docs.angularjs.org/api/ng/directive/ngModel&quot;&gt;ng-model validating directives&lt;/a&gt;
 to your inputs, this will be able to tell if the form is valid. This is because a form is only valid if all of the children
-ng-models are valid. So–for example–by adding ng-required to all fields, the form will only be valid if all fields are answered and thus
+ng-models are valid. So–for example–by adding &lt;a href=&quot;https://docs.angularjs.org/api/ng/directive/ngRequired&quot;&gt;ng-required&lt;/a&gt;
+to all fields, the form will only be valid if all fields are answered and thus
 this will only submit if all fields are answered.&lt;/p&gt;
 
 &lt;div data-toggle=&quot;&quot;&gt;&lt;/div&gt;
@@ -1205,7 +1217,8 @@ polish by again applying the valid styles if the element is focused.&lt;/p&gt;
 &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;17&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;	&lt;span class=&quot;err&quot;&gt;&amp;#x7d;&lt;/span&gt;
 &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;18&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;err&quot;&gt;&amp;#x7d;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
 
-&lt;p&gt;Finally lets add some styles to our error messages, that will utilize Angualr’s &lt;code&gt;ng-messages&lt;/code&gt; directive. And tying it all together
+&lt;p&gt;Finally lets add some styles to our error messages, that will utilize &lt;a href=&quot;https://docs.angularjs.org/api/ngMessages&quot;&gt;Angualr’s &lt;code&gt;ng-messages&lt;/code&gt; directive&lt;/a&gt;.
+And tying it all together
 we have:&lt;/p&gt;
 
 &lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;k&quot;&gt;@mixin&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt; cs-errors-hide-error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;&amp;#x7b;&lt;/span&gt;
