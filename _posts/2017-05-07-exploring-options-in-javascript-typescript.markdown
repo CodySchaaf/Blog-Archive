@@ -6,18 +6,6 @@ comments: true
 categories: typescript options
 ---
 
-
-
-<!-- anywhere else on your page -->
-<div id="my-element">
-function foo()
-{
-    return "hello world"
-}
-
-foo();
-</div>
-
 ## Why TypeScript and Options
 
 For the past few years at [SigFig](www.sigfig.com) we have been using [TypeScript](http://www.typescriptlang.org/), it makes refactoring
