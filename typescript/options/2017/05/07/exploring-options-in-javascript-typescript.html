@@ -97,13 +97,58 @@ parameter without checking its availability first.</p>
 <h2 id="the-cs-options-library">The cs-options Library</h2>
 
 <p>If you would like to include an options library in your code <code>cs-options</code> can be included with <code>bower install cs-option</code>
-or <code>npm instal cs-option</code> package and require Option via <code>import {Option} from 'cs-option'</code>. Check out the readme on
+or <code>npm install cs-option</code> package and require Option via <code>import {Option} from 'cs-option'</code>. Check out the readme on
 <a href="https://github.com/CodySchaaf/CsOption">GitHub</a>.</p>
 
-<p>Below is a fairly contrived example with most of the methods currently offered by this library. Which I will break down in
-the following sections.</p>
+<p>I have come up with some pretty contrived examples–about a family and their pet–that I will go over one at a time to discus the different methods, followed
+by the entire example at the <a href="#entire-example" class="link">bottom of this page</a> in both javascript and typescript. The examples will be in TypeScript
+since the options library really shines when it is used with strict typing and reads very similar to javascript, but they will be paired with some javascript repls
+so you can play with them yourself.</p>
 
-<div data-toggle=""></div>
+<h2 id="how-to-make-an-option">How to make an Option</h2>
+
+<p>You can make an option from an existing value with <code>Option.fromNullable</code> or <code>Option.of</code>, and you can make
+an empty option with <code>Option.absent</code></p>
+
+<div data-toggle-runkit="">
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">const</span> <span class="nx">Option</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;cs-option&#39;</span><span class="p">);</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">const</span> <span class="nx">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">const</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">optionA</span><span class="o">:</span> <span class="nx">Option</span><span class="p">.</span><span class="nx">fromNullable</span><span class="p">(</span><span class="nx">arr</span><span class="p">.</span><span class="nx">pop</span><span class="p">()),</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">optionB</span><span class="o">:</span> <span class="nx">Option</span><span class="p">.</span><span class="nx">fromNullable</span><span class="p">(</span><span class="nx">arr</span><span class="p">.</span><span class="nx">pop</span><span class="p">()),</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">optionC</span><span class="o">:</span> <span class="nx">Option</span><span class="p">.</span><span class="nx">of</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">optionD</span><span class="o">:</span> <span class="nx">Option</span><span class="p">.</span><span class="nx">absent</span><span class="p">()</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
+
+</div>
+
+<p>The method <code>fromNullable</code> is typically used to wrap an external method call which returns an untrusted value
+(possibly null). In my example I will use it when popping an element from an array, but could also be paired
+with find, or when reading a value from a map. In this example I want to feed one of my animals and need to
+get food, I want to pop this off the food array so I wrap it in <code>Option.fromNullable</code>.</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">getFood</span><span class="p">()</span><span class="o">:</span> <span class="nx">Option</span><span class="o">&lt;</span><span class="kt">number</span><span class="o">&gt;</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="nx">Option</span><span class="p">.</span><span class="nx">fromNullable</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">food</span><span class="p">.</span><span class="nx">pop</span><span class="p">());</span> <span class="c1">// or Option.pop(this.food)</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;</span></div></div></pre></div></figure>
+
+<p>The method <code>of</code> is used when you need to wrap a known value in an option. It will throw an error if the value is undefined.
+In my example I use this to pass a known value to a method that expects an option (since a family might or might not have a pet).
+This is because the parameter is optional, but makes the internal logic simpler when this is an option, as well as when the attribute is
+read it is clear that it could be empty.</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">class</span> <span class="nx">Family</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kr">constructor</span><span class="p">(</span><span class="kr">public</span> <span class="nx">pet</span>: <span class="kt">Option</span><span class="o">&lt;</span><span class="nx">Pet</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">&#x7b;&#x7d;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">new</span> <span class="nx">Family</span><span class="p">(</span><span class="nx">Option</span><span class="p">.</span><span class="nx">of</span><span class="p">(</span><span class="nx">blueTheCat</span><span class="p">));</span></div></div></pre></div></figure>
+
+<p>Finally an empty option can be created with <code>absent</code>, and should be used in the above example when you don’t have a value to
+pass to a method, or assign an attribute.</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">new</span> <span class="nx">Family</span><span class="p">(</span><span class="nx">Option</span><span class="p">.</span><span class="nx">absent</span><span class="p">());</span></div></div></pre></div></figure>
+
+<h2 id="full-example">Full Example</h2>
+
+<div data-toggle="" id="entire-example"></div>
 <div data-toggle-ts-js="">
 
 <figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">import</span> <span class="p">&#x7b;</span><span class="nx">Option</span><span class="p">&#x7d;</span> <span class="nx">from</span> <span class="s1">&#39;cs-option&#39;</span><span class="p">;</span>
@@ -285,23 +330,6 @@ the following sections.</p>
 </div></div><div data-line="93" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">Groomer</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">groom</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">&#x7b;</span> <span class="p">&#x7d;;</span>
 </div></div><div data-line="94" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="nx">Groomer</span><span class="p">;</span>
 </div></div><div data-line="95" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;());</span></div></div></pre></div></figure>
-
-
-</div>
-
-<h2 id="how-to-make-an-option">How to make an Option</h2>
-
-<p>You can make an option from an existing value with <code>Option.fromNullable</code> or <code>Option.of</code>, and you can make
-an empty option with <code>Option.absent</code></p>
-
-<div data-toggle-runkit="">
-<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">const</span> <span class="nx">Option</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;cs-option&#39;</span><span class="p">);</span>
-</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kr">const</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">&#x7b;</span>
-</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">optionA</span><span class="o">:</span> <span class="nx">Option</span><span class="p">.</span><span class="nx">fromNullable</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
-</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">optionB</span><span class="o">:</span> <span class="nx">Option</span><span class="p">.</span><span class="nx">fromNullable</span><span class="p">(</span><span class="kc">null</span><span class="p">),</span>
-</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">optionC</span><span class="o">:</span> <span class="nx">Option</span><span class="p">.</span><span class="nx">of</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
-</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">optionD</span><span class="o">:</span> <span class="nx">Option</span><span class="p">.</span><span class="nx">absent</span><span class="p">()</span>
-</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
 
 
 </div>
