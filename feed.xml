@@ -6,23 +6,13 @@
 </description>
     <link>http://codyschaaf.com/</link>
     <atom:link href="http://codyschaaf.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 07 May 2017 21:10:14 -0700</pubDate>
-    <lastBuildDate>Sun, 07 May 2017 21:10:14 -0700</lastBuildDate>
+    <pubDate>Sun, 07 May 2017 21:12:21 -0700</pubDate>
+    <lastBuildDate>Sun, 07 May 2017 21:12:21 -0700</lastBuildDate>
     <generator>Jekyll v2.5.3</generator>
     
       <item>
         <title>Exploring Options in Javascript/TypeScript</title>
-        <description>&lt;!-- anywhere else on your page --&gt;
-&lt;div id=&quot;my-element&quot;&gt;
-function foo()
-{
-    return &quot;hello world&quot;
-}
-
-foo();
-&lt;/div&gt;
-
-&lt;h2 id=&quot;why-typescript-and-options&quot;&gt;Why TypeScript and Options&lt;/h2&gt;
+        <description>&lt;h2 id=&quot;why-typescript-and-options&quot;&gt;Why TypeScript and Options&lt;/h2&gt;
 
 &lt;p&gt;For the past few years at &lt;a href=&quot;www.sigfig.com&quot;&gt;SigFig&lt;/a&gt; we have been using &lt;a href=&quot;http://www.typescriptlang.org/&quot;&gt;TypeScript&lt;/a&gt;, it makes refactoring
 and working with a large code base/large team a lot more simple. A large variety of bugs
