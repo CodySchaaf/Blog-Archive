@@ -49,7 +49,7 @@ GEM
       listen (~> 2.7)
     jmespath (1.0.2)
       multi_json (~> 1.0)
-    json (1.8.3)
+    json (2.3.1)
     kramdown (1.8.0)
     liquid (2.6.3)
     listen (2.10.1)
